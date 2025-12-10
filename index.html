@@ -16,6 +16,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Rakkas&display=swap" rel="stylesheet">
+    <!-- إضافة Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -130,6 +133,15 @@
         .btn-outline:hover {
             background-color: var(--secondary-color);
             color: white;
+        }
+
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #e67e22;
         }
 
         .hidden {
@@ -267,6 +279,46 @@
             margin-top: 15px;
         }
 
+        .upload-options {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .upload-option {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            border: 2px solid #eee;
+            border-radius: var(--border-radius);
+            background-color: #f9f9f9;
+        }
+
+        .upload-option h4 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .imgur-upload {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 2px solid #1bb76e;
+        }
+
+        .imgur-upload h4 {
+            color: #1bb76e;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .categories {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -338,6 +390,16 @@
             border-radius: 20px;
             font-size: 0.8rem;
             margin-bottom: 10px;
+        }
+
+        .imgur-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #1bb76e;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 5px;
         }
 
         /* تصميم محرر الصور */
@@ -559,6 +621,11 @@
             color: var(--danger-color);
         }
 
+        .status-message.info {
+            background-color: rgba(52, 152, 219, 0.2);
+            color: var(--secondary-color);
+        }
+
         /* تصميم responsive */
         @media (max-width: 992px) {
             .admin-panel, .editor-container {
@@ -567,6 +634,14 @@
             
             .sidebar {
                 margin-bottom: 20px;
+            }
+            
+            .upload-options {
+                flex-direction: column;
+            }
+            
+            .upload-option {
+                min-width: 100%;
             }
         }
 
@@ -653,14 +728,39 @@
                 <!-- قسم رفع الصور -->
                 <div id="uploadSection" class="section-content">
                     <h2><i class="fas fa-cloud-upload-alt"></i> رفع الصور إلى التطبيق</h2>
-                    <div class="upload-section">
-                        <i class="fas fa-file-upload"></i>
-                        <h3>اسحب وأفلت الصور هنا أو انقر للاختيار</h3>
-                        <p>يمكنك رفع الصور بتنسيقات JPG, PNG, GIF</p>
-                        <input type="file" id="imageUpload" accept="image/*" multiple class="hidden">
-                        <label for="imageUpload" class="btn btn-primary upload-btn">
-                            <i class="fas fa-folder-open"></i> اختيار الصور
-                        </label>
+                    
+                    <div class="upload-options">
+                        <!-- خيار رفع الصور من الجهاز -->
+                        <div class="upload-option">
+                            <h4><i class="fas fa-desktop"></i> رفع من الجهاز</h4>
+                            <div class="upload-section">
+                                <i class="fas fa-file-upload"></i>
+                                <h3>اسحب وأفلت الصور هنا أو انقر للاختيار</h3>
+                                <p>يمكنك رفع الصور بتنسيقات JPG, PNG, GIF</p>
+                                <input type="file" id="imageUpload" accept="image/*" multiple class="hidden">
+                                <label for="imageUpload" class="btn btn-primary upload-btn">
+                                    <i class="fas fa-folder-open"></i> اختيار الصور
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- خيار رفع الصور من Imgur -->
+                        <div class="upload-option">
+                            <h4><i class="fas fa-link"></i> رفع من رابط Imgur</h4>
+                            <div class="imgur-upload">
+                                <h4><i class="fab fa-imgur"></i> Imgur</h4>
+                                <p>أدخل رابط الصورة من موقع Imgur:</p>
+                                <div class="form-group">
+                                    <input type="text" id="imgurUrl" class="form-control" placeholder="https://i.imgur.com/xxxxx.jpg">
+                                </div>
+                                <button id="addImgurImage" class="btn btn-warning">
+                                    <i class="fas fa-plus"></i> إضافة الصورة
+                                </button>
+                                <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                                    ملاحظة: يجب أن يكون الرابط مباشراً للصورة (ينتهي بـ .jpg, .png, .gif)
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     
                     <h3>اختر فئة للصورة:</h3>
@@ -689,6 +789,9 @@
                 <!-- قسم معرض الصور -->
                 <div id="gallerySection" class="section-content hidden">
                     <h2><i class="fas fa-photo-video"></i> معرض الصور</h2>
+                    <div class="status-message info" id="firebaseStatus">
+                        <i class="fas fa-sync-alt fa-spin"></i> جاري تحميل الصور من قاعدة البيانات...
+                    </div>
                     <div id="adminGallery" class="gallery">
                         <!-- سيتم إضافة الصور هنا بواسطة JavaScript -->
                     </div>
@@ -798,7 +901,7 @@
                             
                             <div class="download-btn-container">
                                 <button id="downloadImage" class="btn btn-success">
-                                    <i class="fas fa-download"></i> تحميل الصورة
+                                    <i class="fas fa-download"></i> تحميل الصورة (PNG)
                                 </button>
                             </div>
                         </div>
@@ -829,6 +932,10 @@
                 <button class="filter-btn" data-category="ملازم دراسية">ملازم دراسية</button>
                 <button class="filter-btn" data-category="خطط يومية">خطط يومية</button>
                 <button class="filter-btn" data-category="سجلات الدرجات">سجلات الدرجات</button>
+            </div>
+            
+            <div class="status-message info" id="userFirebaseStatus">
+                <i class="fas fa-sync-alt fa-spin"></i> جاري تحميل الصور من قاعدة البيانات...
             </div>
             
             <div id="userGallery" class="gallery">
@@ -903,7 +1010,7 @@
                         
                         <div class="download-btn-container">
                             <button id="modalDownloadImage" class="btn btn-success">
-                                <i class="fas fa-download"></i> تحميل الصورة المعدلة
+                                <i class="fas fa-download"></i> تحميل الصورة المعدلة (PNG)
                             </button>
                         </div>
                     </div>
@@ -924,10 +1031,26 @@
     </div>
 
     <script>
+        // تكوين Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKJVcxZHxTF0SV3bpz8_pcj00eet00hfg",
+            authDomain: "mohrer-4366a.firebaseapp.com",
+            databaseURL: "https://mohrer-4366a-default-rtdb.firebaseio.com",
+            projectId: "mohrer-4366a",
+            storageBucket: "mohrer-4366a.firebasestorage.app",
+            messagingSenderId: "85211561258",
+            appId: "1:85211561258:web:871998183c9817b8c33253",
+            measurementId: "G-DPXPDJ4Z42"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         // البيانات والمتغيرات العامة
         const ADMIN_PASSWORD = "Asasxzxz!@#rtyooo";
         let currentUser = null;
-        let images = JSON.parse(localStorage.getItem('school_docs_images')) || [];
+        let images = [];
         let selectedCategory = "سجلات ادارية";
         let selectedImage = null;
         let selectedElement = null;
@@ -973,13 +1096,16 @@
         const modalEditorImage = document.getElementById('modalEditorImage');
         const imageContainer = document.getElementById('imageContainer');
         const modalImageContainer = document.getElementById('modalImageContainer');
+        const imgurUrlInput = document.getElementById('imgurUrl');
+        const addImgurImageBtn = document.getElementById('addImgurImage');
+        const firebaseStatus = document.getElementById('firebaseStatus');
+        const userFirebaseStatus = document.getElementById('userFirebaseStatus');
         
         // تهيئة التطبيق
         function initApp() {
             showUserView();
-            loadImages();
             setupEventListeners();
-            displayImagesInGallery();
+            loadImagesFromFirebase();
         }
         
         // إعداد مستمعي الأحداث
@@ -990,6 +1116,16 @@
             logoutBtn.addEventListener('click', handleLogout);
             
             imageUpload.addEventListener('change', handleImageUpload);
+            
+            // إضافة صورة من Imgur
+            addImgurImageBtn.addEventListener('click', handleImgurUpload);
+            
+            // تفعيل زر Enter في حقل Imgur
+            imgurUrlInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleImgurUpload();
+                }
+            });
             
             categoryCards.forEach(card => {
                 card.addEventListener('click', () => {
@@ -1181,7 +1317,7 @@
             showUserView();
         }
         
-        // معالجة رفع الصور
+        // معالجة رفع الصور من الجهاز
         async function handleImageUpload(e) {
             const files = e.target.files;
             if (!files.length) return;
@@ -1209,12 +1345,17 @@
                         category: selectedCategory,
                         uploadedAt: new Date().toISOString(),
                         elements: [],
-                        logo: null
+                        logo: null,
+                        source: 'upload' // مصدر الصورة (رفع من الجهاز)
                     };
                     
+                    // إضافة الصورة إلى المصفوفة المحلية
                     images.push(newImage);
-                    localStorage.setItem('school_docs_images', JSON.stringify(images));
                     
+                    // حفظ في Firebase
+                    saveImageToFirebase(newImage);
+                    
+                    // عرض رسالة النجاح
                     if (i === files.length - 1) {
                         showMessage(uploadStatus, `تم رفع ${files.length} صورة بنجاح!`, 'success');
                         displayImagesInGallery();
@@ -1226,33 +1367,163 @@
             }
         }
         
-        // معالجة رفع الشعار
-        function handleLogoUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        // معالجة رفع الصور من Imgur
+        function handleImgurUpload() {
+            const imgurUrl = imgurUrlInput.value.trim();
             
-            const reader = new FileReader();
+            if (!imgurUrl) {
+                showMessage(uploadStatus, 'الرجاء إدخال رابط Imgur!', 'error');
+                return;
+            }
             
-            reader.onload = function(event) {
-                logoImage = event.target.result;
-                addLogoToEditor();
+            if (!selectedCategory) {
+                showMessage(uploadStatus, 'الرجاء اختيار فئة للصورة أولاً!', 'error');
+                return;
+            }
+            
+            // التحقق من أن الرابط هو رابط Imgur صحيح
+            if (!isValidImgurUrl(imgurUrl)) {
+                showMessage(uploadStatus, 'الرجاء إدخال رابط Imgur صحيح!', 'error');
+                return;
+            }
+            
+            showMessage(uploadStatus, 'جاري إضافة الصورة من Imgur...', 'success');
+            
+            // إنشاء كائن للصورة من Imgur
+            const newImage = {
+                id: Date.now(),
+                name: `صورة من Imgur - ${new Date().toLocaleDateString('ar-EG')}`,
+                url: imgurUrl,
+                category: selectedCategory,
+                uploadedAt: new Date().toISOString(),
+                elements: [],
+                logo: null,
+                source: 'imgur', // مصدر الصورة (Imgur)
+                imgurUrl: imgurUrl // حفظ الرابط الأصلي
             };
             
-            reader.readAsDataURL(file);
+            // إضافة الصورة إلى المصفوفة المحلية
+            images.push(newImage);
+            
+            // حفظ في Firebase
+            saveImageToFirebase(newImage);
+            
+            // عرض رسالة النجاح
+            showMessage(uploadStatus, 'تم إضافة الصورة من Imgur بنجاح!', 'success');
+            displayImagesInGallery();
+            
+            // مسح حقل الإدخال
+            imgurUrlInput.value = '';
         }
         
-        // تحميل الصور من التخزين المحلي
-        function loadImages() {
-            const savedImages = localStorage.getItem('school_docs_images');
-            if (savedImages) {
-                images = JSON.parse(savedImages);
+        // التحقق من رابط Imgur
+        function isValidImgurUrl(url) {
+            // قائمة بنماذج روابط Imgur المقبولة
+            const imgurPatterns = [
+                /^https?:\/\/(i\.)?imgur\.com\/[a-zA-Z0-9]+\.(jpg|jpeg|png|gif)$/i,
+                /^https?:\/\/(i\.)?imgur\.com\/[a-zA-Z0-9]+$/i,
+                /^https?:\/\/imgur\.com\/[a-zA-Z0-9]+$/i
+            ];
+            
+            return imgurPatterns.some(pattern => pattern.test(url));
+        }
+        
+        // حفظ الصورة في Firebase
+        function saveImageToFirebase(image) {
+            try {
+                const imageRef = database.ref('school_docs_images/' + image.id);
+                imageRef.set(image)
+                    .then(() => {
+                        console.log('تم حفظ الصورة في Firebase بنجاح:', image.id);
+                    })
+                    .catch((error) => {
+                        console.error('خطأ في حفظ الصورة في Firebase:', error);
+                    });
+            } catch (error) {
+                console.error('خطأ في الاتصال بـ Firebase:', error);
+            }
+        }
+        
+        // تحميل الصور من Firebase
+        function loadImagesFromFirebase() {
+            try {
+                const imagesRef = database.ref('school_docs_images');
+                
+                imagesRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    images = [];
+                    
+                    if (data) {
+                        // تحويل البيانات من Firebase إلى مصفوفة
+                        Object.keys(data).forEach(key => {
+                            images.push(data[key]);
+                        });
+                        
+                        // تحديث حالة Firebase
+                        if (firebaseStatus) {
+                            firebaseStatus.classList.add('hidden');
+                        }
+                        if (userFirebaseStatus) {
+                            userFirebaseStatus.classList.add('hidden');
+                        }
+                    } else {
+                        // لا توجد بيانات في Firebase
+                        if (firebaseStatus) {
+                            firebaseStatus.innerHTML = '<i class="fas fa-database"></i> لا توجد صور في قاعدة البيانات حتى الآن';
+                        }
+                        if (userFirebaseStatus) {
+                            userFirebaseStatus.innerHTML = '<i class="fas fa-database"></i> لا توجد صور في قاعدة البيانات حتى الآن';
+                        }
+                    }
+                    
+                    // عرض الصور في المعرض
+                    displayImagesInGallery();
+                }, (error) => {
+                    console.error('خطأ في تحميل الصور من Firebase:', error);
+                    if (firebaseStatus) {
+                        firebaseStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> خطأ في تحميل الصور من قاعدة البيانات';
+                    }
+                    if (userFirebaseStatus) {
+                        userFirebaseStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> خطأ في تحميل الصور من قاعدة البيانات';
+                    }
+                });
+            } catch (error) {
+                console.error('خطأ في الاتصال بـ Firebase:', error);
+            }
+        }
+        
+        // حذف الصورة من Firebase
+        function deleteImageFromFirebase(imageId) {
+            try {
+                const imageRef = database.ref('school_docs_images/' + imageId);
+                imageRef.remove()
+                    .then(() => {
+                        console.log('تم حذف الصورة من Firebase بنجاح:', imageId);
+                    })
+                    .catch((error) => {
+                        console.error('خطأ في حذف الصورة من Firebase:', error);
+                    });
+            } catch (error) {
+                console.error('خطأ في الاتصال بـ Firebase:', error);
             }
         }
         
         // عرض الصور في المعرض
         function displayImagesInGallery(filter = 'all') {
+            // للمعرض الخاص بالمدير
             if (adminGallery) {
                 adminGallery.innerHTML = '';
+                
+                if (images.length === 0) {
+                    adminGallery.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                            <i class="fas fa-images" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                            <h3 style="color: #777;">لا توجد صور في المعرض</h3>
+                            <p>يمكنك رفع صور جديدة من قسم "رفع الصور"</p>
+                        </div>
+                    `;
+                    return;
+                }
                 
                 images.forEach(image => {
                     const imageCard = createImageCard(image);
@@ -1260,6 +1531,7 @@
                 });
             }
             
+            // للمعرض الخاص بالمستخدم
             if (userGallery) {
                 filterImagesByCategory(filter);
             }
@@ -1297,11 +1569,15 @@
             card.dataset.id = image.id;
             
             const categoryLabel = getCategoryLabel(image.category);
+            const isImgurImage = image.source === 'imgur';
             
             card.innerHTML = `
-                <img src="${image.url}" alt="${image.name}">
+                <img src="${image.url}" alt="${image.name}" onerror="this.src='https://via.placeholder.com/300x200?text=خطأ+في+تحميل+الصورة'">
                 <div class="image-info">
-                    <span class="image-category">${categoryLabel}</span>
+                    <div>
+                        <span class="image-category">${categoryLabel}</span>
+                        ${isImgurImage ? '<span class="imgur-badge">Imgur</span>' : ''}
+                    </div>
                     <h4>${image.name}</h4>
                     <p>تم الرفع: ${formatDate(image.uploadedAt)}</p>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -1326,7 +1602,7 @@
                 'سجلات ادارية': 'سجلات ادارية',
                 'ملازم دراسية': 'ملازم دراسية',
                 'خطط يومية': 'خطط يومية',
-                'سجلات الدرجات': 'سجلات الدرجات'
+                'سجلات الدرجات': 'سجلالدرجات'
             };
             
             return labels[category] || category;
@@ -1387,6 +1663,11 @@
                     addLogoToEditor(displayLogoSize, displayX, displayY);
                 }
             };
+            
+            // في حالة فشل تحميل الصورة
+            editorImage.onerror = function() {
+                showMessage(uploadStatus, 'فشل تحميل الصورة. الرجاء التحقق من الرابط.', 'error');
+            };
         }
         
         // إضافة حقل نصي إلى المحرر
@@ -1413,7 +1694,9 @@
             if (selectedImage) {
                 if (!selectedImage.elements) selectedImage.elements = [];
                 selectedImage.elements.push(element);
-                localStorage.setItem('school_docs_images', JSON.stringify(images));
+                
+                // تحديث الصورة في Firebase
+                updateImageInFirebase(selectedImage);
             }
             
             // إضافة إلى المحرر
@@ -1508,8 +1791,26 @@
                 const element = selectedImage.elements.find(el => el.id === textElement.id);
                 if (element) {
                     element.text = newText;
-                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                    
+                    // تحديث الصورة في Firebase
+                    updateImageInFirebase(selectedImage);
                 }
+            }
+        }
+        
+        // تحديث الصورة في Firebase
+        function updateImageInFirebase(image) {
+            try {
+                const imageRef = database.ref('school_docs_images/' + image.id);
+                imageRef.update(image)
+                    .then(() => {
+                        console.log('تم تحديث الصورة في Firebase بنجاح:', image.id);
+                    })
+                    .catch((error) => {
+                        console.error('خطأ في تحديث الصورة في Firebase:', error);
+                    });
+            } catch (error) {
+                console.error('خطأ في الاتصال بـ Firebase:', error);
             }
         }
         
@@ -1557,7 +1858,9 @@
                     x: xRatio,
                     y: yRatio
                 };
-                localStorage.setItem('school_docs_images', JSON.stringify(images));
+                
+                // تحديث الصورة في Firebase
+                updateImageInFirebase(selectedImage);
             }
             
             return logoElement;
@@ -1574,7 +1877,7 @@
                 // تحديث في بيانات الصورة
                 if (selectedImage && selectedImage.logo) {
                     selectedImage.logo.size = logoSize;
-                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                    updateImageInFirebase(selectedImage);
                 }
             }
         }
@@ -1642,7 +1945,7 @@
                 if (element) {
                     element.x = xRatio;
                     element.y = yRatio;
-                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                    updateImageInFirebase(selectedImage);
                     return;
                 }
             }
@@ -1651,7 +1954,7 @@
             if (elementId === 'logo-element' && selectedImage.logo) {
                 selectedImage.logo.x = xRatio;
                 selectedImage.logo.y = yRatio;
-                localStorage.setItem('school_docs_images', JSON.stringify(images));
+                updateImageInFirebase(selectedImage);
             }
         }
         
@@ -1717,7 +2020,7 @@
                     element.fontSize = fontSize;
                     element.fontWeight = fontWeight;
                     element.color = color;
-                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                    updateImageInFirebase(selectedImage);
                 }
             }
         }
@@ -1740,13 +2043,13 @@
                     logoImage = null;
                 }
                 
-                localStorage.setItem('school_docs_images', JSON.stringify(images));
+                updateImageInFirebase(selectedImage);
             }
             
             selectedElement = null;
         }
         
-        // تحميل الصورة المحررة
+        // تحميل الصورة المحررة بصيغة PNG
         function downloadEditedImage() {
             if (!selectedImage) {
                 alert('الرجاء تحميل صورة أولاً!');
@@ -1759,6 +2062,8 @@
             
             // تحميل الصورة الأصلية
             const img = new Image();
+            img.crossOrigin = 'anonymous'; // للتعامل مع الصور من مصادر مختلفة
+            
             img.onload = function() {
                 canvas.width = img.width;
                 canvas.height = img.height;
@@ -1783,6 +2088,8 @@
                 // رسم الشعار
                 if (selectedImage.logo && selectedImage.logo.url) {
                     const logoImg = new Image();
+                    logoImg.crossOrigin = 'anonymous';
+                    
                     logoImg.onload = function() {
                         // تحويل المواقع من النسبة المئوية إلى المواقع الفعلية
                         const x = (selectedImage.logo.x || 0) * img.width;
@@ -1791,9 +2098,17 @@
                         
                         ctx.drawImage(logoImg, x, y, size, size);
                         
-                        // تحميل الصورة
+                        // تحميل الصورة بصيغة PNG
                         const link = document.createElement('a');
-                        link.download = `محرر-مدرسي-${selectedImage.name}`;
+                        link.download = `محرر-مدرسي-${selectedImage.name.replace(/\.[^/.]+$/, "")}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    };
+                    
+                    logoImg.onerror = function() {
+                        // في حالة فشل تحميل الشعار، قم بتحميل الصورة بدون شعار
+                        const link = document.createElement('a');
+                        link.download = `محرر-مدرسي-${selectedImage.name.replace(/\.[^/.]+$/, "")}.png`;
                         link.href = canvas.toDataURL('image/png');
                         link.click();
                     };
@@ -1802,10 +2117,14 @@
                 } else {
                     // تحميل الصورة بدون شعار
                     const link = document.createElement('a');
-                    link.download = `محرر-مدرسي-${selectedImage.name}`;
+                    link.download = `محرر-مدرسي-${selectedImage.name.replace(/\.[^/.]+$/, "")}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                 }
+            };
+            
+            img.onerror = function() {
+                alert('فشل تحميل الصورة للتصدير. الرجاء المحاولة مرة أخرى.');
             };
             
             img.src = selectedImage.url;
@@ -1846,6 +2165,11 @@
                         });
                     });
                 }
+            };
+            
+            // في حالة فشل تحميل الصورة
+            modalEditorImage.onerror = function() {
+                showMessage(document.getElementById('modalMessage'), 'فشل تحميل الصورة. الرجاء التحقق من الرابط.', 'error');
             };
             
             // إظهار الـ Modal
@@ -1932,7 +2256,7 @@
                 const element = selectedImage.elements.find(el => el.id === originalId);
                 if (element) {
                     element.text = newText;
-                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                    updateImageInFirebase(selectedImage);
                 }
             }
         }
@@ -1998,7 +2322,7 @@
             if (element) {
                 element.x = xRatio;
                 element.y = yRatio;
-                localStorage.setItem('school_docs_images', JSON.stringify(images));
+                updateImageInFirebase(selectedImage);
             }
         }
         
@@ -2057,7 +2381,7 @@
                     element.fontSize = fontSize;
                     element.fontWeight = fontWeight;
                     element.color = color;
-                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                    updateImageInFirebase(selectedImage);
                 }
             }
         }
@@ -2072,13 +2396,13 @@
             
             if (selectedImage && selectedImage.elements) {
                 selectedImage.elements = selectedImage.elements.filter(el => el.id !== originalId);
-                localStorage.setItem('school_docs_images', JSON.stringify(images));
+                updateImageInFirebase(selectedImage);
             }
             
             selectedElement = null;
         }
         
-        // تحميل الصورة المحررة من الـ Modal
+        // تحميل الصورة المحررة من الـ Modal بصيغة PNG
         function downloadModalEditedImage() {
             if (!selectedImage) return;
             
@@ -2086,6 +2410,8 @@
             const ctx = canvas.getContext('2d');
             
             const img = new Image();
+            img.crossOrigin = 'anonymous';
+            
             img.onload = function() {
                 canvas.width = img.width;
                 canvas.height = img.height;
@@ -2105,9 +2431,13 @@
                 }
                 
                 const link = document.createElement('a');
-                link.download = `محرر-مدرسي-${selectedImage.name}`;
+                link.download = `محرر-مدرسي-${selectedImage.name.replace(/\.[^/.]+$/, "")}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
+            };
+            
+            img.onerror = function() {
+                alert('فشل تحميل الصورة للتصدير. الرجاء المحاولة مرة أخرى.');
             };
             
             img.src = selectedImage.url;
@@ -2115,9 +2445,29 @@
         
         // حذف صورة
         function deleteImage(imageId) {
+            // إزالة الصورة من المصفوفة المحلية
             images = images.filter(img => img.id != imageId);
-            localStorage.setItem('school_docs_images', JSON.stringify(images));
+            
+            // حذف الصورة من Firebase
+            deleteImageFromFirebase(imageId);
+            
+            // عرض الصور المتبقية
             displayImagesInGallery();
+        }
+        
+        // معالجة رفع الشعار
+        function handleLogoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                logoImage = event.target.result;
+                addLogoToEditor();
+            };
+            
+            reader.readAsDataURL(file);
         }
         
         // عرض رسالة
