@@ -1767,7 +1767,7 @@
                 'سجلات ادارية': 'سجلات ادارية',
                 'ملازم دراسية': 'ملازم دراسية',
                 'خطط يومية': 'خطط يومية',
-                'سجلات الدرجات': 'سجلالدرجات'
+                'سجلات الدرجات': 'سجلات الدرجات'
             };
             
             return labels[category] || category;
@@ -2215,12 +2215,11 @@
                         const x = element.x * img.width;
                         const y = element.y * img.height;
                         
-                        // حساب ارتفاع النص لتصحيح الموقع
-                        const textMetrics = ctx.measureText(element.text);
-                        const textHeight = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
+                        // التعديل: إضافة 12 بكسل إلى الإحداثي y لتصحيح موضع النص
+                        const correctedY = y + 12;
                         
-                        // تصحيح الموقع: رسم النص في الموضع الصحيح (بدون إزاحة)
-                        ctx.fillText(element.text, x, y);
+                        // تصحيح الموقع: رسم النص في الموضع الصحيح مع الإزاحة
+                        ctx.fillText(element.text, x, correctedY);
                     });
                 }
                 
@@ -2543,8 +2542,11 @@
                         const x = element.x * img.width;
                         const y = element.y * img.height;
                         
-                        // تصحيح الموقع: رسم النص في الموضع الصحيح (بدون إزاحة)
-                        ctx.fillText(element.text, x, y);
+                        // التعديل: إضافة 12 بكسل إلى الإحداثي y لتصحيح موضع النص
+                        const correctedY = y + 19;
+                        
+                        // تصحيح الموقع: رسم النص في الموضع الصحيح مع الإزاحة
+                        ctx.fillText(element.text, x, correctedY);
                     });
                 }
                 
