@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر المستندات المدرسية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #1abc9c;
+            --light-color: #ecf0f1;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #219653;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* تصميم قسم تسجيل الدخول */
+        .login-section {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 40px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .login-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        /* تصميم لوحة التحكم */
+        .admin-panel {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 10px;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .nav-menu i {
+            margin-left: 10px;
+        }
+
+        .content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .content h2 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        /* تصميم قسم رفع الصور */
+        .upload-section {
+            border: 2px dashed #ddd;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .upload-section:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .upload-section i {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .category-card {
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid #eee;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-color);
+            box-shadow: var(--box-shadow);
+        }
+
+        .category-card.selected {
+            border-color: var(--secondary-color);
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .category-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        /* تصميم معرض الصور */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .image-card {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            background-color: white;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .image-info {
+            padding: 15px;
+        }
+
+        .image-category {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: var(--light-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        /* تصميم محرر الصور */
+        .editor-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .editor-tools {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .editor-tools h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .tool-group {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tool-group:last-child {
+            border-bottom: none;
+        }
+
+        .tool-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .text-field-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .canvas-container {
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: #f9f9f9;
+            min-height: 600px;
+        }
+
+        #canvas {
+            display: block;
+            max-width: 100%;
+        }
+
+        .text-element {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .text-element.selected {
+            outline: 2px dashed var(--secondary-color);
+        }
+
+        .logo-element {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+        }
+
+        .logo-element img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-container input[type="range"] {
+            flex-grow: 1;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 2px solid #ddd;
+        }
+
+        .font-selector {
+            width: 100%;
+            padding: 8px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+        }
+
+        .download-btn-container {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        /* تصميم قسم عرض الصور للمستخدم */
+        .user-view {
+            margin-top: 20px;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .category-filter button {
+            padding: 10px 20px;
+            border: 2px solid var(--light-color);
+            background-color: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .category-filter button:hover, .category-filter button.active {
+            border-color: var(--secondary-color);
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        /* تصميم الـ modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .status-message {
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status-message.success {
+            background-color: rgba(39, 174, 96, 0.2);
+            color: var(--success-color);
+        }
+
+        .status-message.error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--danger-color);
+        }
+
+        /* تصميم responsive */
+        @media (max-width: 992px) {
+            .admin-panel, .editor-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .categories, .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 576px) {
+            .login-section {
+                padding: 25px 20px;
+                margin: 20px auto;
+            }
+            
+            .categories, .gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .text-field-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- شريط العنوان -->
+        <header>
+            <div class="logo">
+                <i class="fas fa-book-open"></i>
+                <h1>محرر المستندات المدرسية</h1>
+            </div>
+            <div class="auth-section">
+                <button id="userViewBtn" class="btn btn-outline">
+                    <i class="fas fa-eye"></i> عرض المستندات
+                </button>
+                <button id="adminLoginBtn" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> دخول المدير
+                </button>
+            </div>
+        </header>
+
+        <!-- قسم تسجيل دخول المدير -->
+        <section id="loginSection" class="login-section hidden">
+            <h2><i class="fas fa-lock"></i> دخول المدير</h2>
+            <div id="loginMessage" class="status-message hidden"></div>
+            <div class="form-group">
+                <label for="adminPassword"><i class="fas fa-key"></i> كلمة المرور:</label>
+                <input type="password" id="adminPassword" class="form-control" placeholder="أدخل كلمة المرور">
+            </div>
+            <button id="loginBtn" class="btn btn-success btn-block">
+                <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+            </button>
+        </section>
+
+        <!-- لوحة تحكم المدير -->
+        <section id="adminPanel" class="admin-panel hidden">
+            <!-- القائمة الجانبية -->
+            <div class="sidebar">
+                <h3><i class="fas fa-cogs"></i> لوحة التحكم</h3>
+                <ul class="nav-menu">
+                    <li><a href="#" class="active" data-section="upload"><i class="fas fa-upload"></i> رفع الصور</a></li>
+                    <li><a href="#" data-section="gallery"><i class="fas fa-images"></i> معرض الصور</a></li>
+                    <li><a href="#" data-section="editor"><i class="fas fa-edit"></i> محرر الصور</a></li>
+                </ul>
+                <button id="logoutBtn" class="btn btn-danger" style="margin-top: 30px; width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                </button>
+            </div>
+
+            <!-- المحتوى الرئيسي -->
+            <div class="content">
+                <!-- قسم رفع الصور -->
+                <div id="uploadSection" class="section-content">
+                    <h2><i class="fas fa-cloud-upload-alt"></i> رفع الصور إلى التطبيق</h2>
+                    <div class="upload-section">
+                        <i class="fas fa-file-upload"></i>
+                        <h3>اسحب وأفلت الصور هنا أو انقر للاختيار</h3>
+                        <p>يمكنك رفع الصور بتنسيقات JPG, PNG, GIF</p>
+                        <input type="file" id="imageUpload" accept="image/*" multiple class="hidden">
+                        <label for="imageUpload" class="btn btn-primary upload-btn">
+                            <i class="fas fa-folder-open"></i> اختيار الصور
+                        </label>
+                    </div>
+                    
+                    <h3>اختر فئة للصورة:</h3>
+                    <div class="categories">
+                        <div class="category-card" data-category="سجلات ادارية">
+                            <i class="fas fa-folder"></i>
+                            <h4>سجلات ادارية</h4>
+                        </div>
+                        <div class="category-card" data-category="ملازم دراسية">
+                            <i class="fas fa-book"></i>
+                            <h4>ملازم دراسية</h4>
+                        </div>
+                        <div class="category-card" data-category="خطط يومية">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h4>خطط يومية</h4>
+                        </div>
+                        <div class="category-card" data-category="سجلات الدرجات">
+                            <i class="fas fa-chart-bar"></i>
+                            <h4>سجلات الدرجات</h4>
+                        </div>
+                    </div>
+                    
+                    <div id="uploadStatus" class="status-message hidden" style="margin-top: 20px;"></div>
+                </div>
+
+                <!-- قسم معرض الصور -->
+                <div id="gallerySection" class="section-content hidden">
+                    <h2><i class="fas fa-photo-video"></i> معرض الصور</h2>
+                    <div id="adminGallery" class="gallery">
+                        <!-- سيتم إضافة الصور هنا بواسطة JavaScript -->
+                    </div>
+                </div>
+
+                <!-- قسم محرر الصور -->
+                <div id="editorSection" class="section-content hidden">
+                    <h2><i class="fas fa-edit"></i> محرر الصور</h2>
+                    <div class="editor-container">
+                        <div class="editor-tools">
+                            <h3><i class="fas fa-tools"></i> أدوات التحرير</h3>
+                            
+                            <div class="tool-group">
+                                <h4>الحقول النصية</h4>
+                                <div class="text-field-buttons">
+                                    <button class="btn btn-outline add-text" data-field="اسم المدرس">
+                                        <i class="fas fa-user"></i> اسم المدرس
+                                    </button>
+                                    <button class="btn btn-outline add-text" data-field="اسم مدير المدرسة">
+                                        <i class="fas fa-user-tie"></i> مدير المدرسة
+                                    </button>
+                                    <button class="btn btn-outline add-text" data-field="الشعبة">
+                                        <i class="fas fa-users"></i> الشعبة
+                                    </button>
+                                    <button class="btn btn-outline add-text" data-field="السنة الدراسية">
+                                        <i class="fas fa-calendar"></i> السنة الدراسية
+                                    </button>
+                                    <button class="btn btn-outline add-text" data-field="اسم المدرسة">
+                                        <i class="fas fa-school"></i> اسم المدرسة
+                                    </button>
+                                    <button class="btn btn-outline add-text" data-field="رقم السجل">
+                                        <i class="fas fa-hashtag"></i> رقم السجل
+                                    </button>
+                                    <button class="btn btn-outline add-text" data-field="اسم المديرية">
+                                        <i class="fas fa-building"></i> اسم المديرية
+                                    </button>
+                                </div>
+                                <p class="help-text">انقر على أي حقل لإضافته إلى الصورة</p>
+                            </div>
+                            
+                            <div class="tool-group">
+                                <h4>إضافة شعار (لوجو)</h4>
+                                <input type="file" id="logoUpload" accept="image/*" class="hidden">
+                                <label for="logoUpload" class="btn btn-outline" style="width: 100%; margin-bottom: 10px;">
+                                    <i class="fas fa-image"></i> اختر شعاراً
+                                </label>
+                                <div class="slider-container">
+                                    <label>حجم الشعار:</label>
+                                    <input type="range" id="logoSize" min="50" max="300" value="113" step="1">
+                                    <span id="logoSizeValue">3 سم</span>
+                                </div>
+                            </div>
+                            
+                            <div class="tool-group">
+                                <h4>خصائص النص المحدد</h4>
+                                <div class="form-group">
+                                    <label>نوع الخط:</label>
+                                    <select id="fontFamily" class="font-selector">
+                                        <option value="Arial, sans-serif">Arial</option>
+                                        <option value="'Cairo', sans-serif" selected>Cairo</option>
+                                        <option value="'Times New Roman', serif">Times New Roman</option>
+                                        <option value="'Courier New', monospace">Courier New</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>حجم الخط:</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="fontSize" min="10" max="72" value="24" step="1">
+                                        <span id="fontSizeValue">24px</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>سمك الخط:</label>
+                                    <select id="fontWeight" class="font-selector">
+                                        <option value="normal">عادي</option>
+                                        <option value="bold">غامق</option>
+                                        <option value="bolder">أكثر غلاظة</option>
+                                        <option value="lighter">أخف</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>لون النص:</label>
+                                    <div class="color-picker">
+                                        <div class="color-preview" id="colorPreview" style="background-color: #000000;"></div>
+                                        <input type="color" id="textColor" value="#000000">
+                                        <input type="text" id="colorHex" value="#000000" class="form-control" style="width: 100px;">
+                                    </div>
+                                </div>
+                                
+                                <button id="removeSelected" class="btn btn-danger" style="width: 100%; margin-top: 10px;">
+                                    <i class="fas fa-trash"></i> حذف العنصر المحدد
+                                </button>
+                            </div>
+                            
+                            <div class="download-btn-container">
+                                <button id="downloadImage" class="btn btn-success">
+                                    <i class="fas fa-download"></i> تحميل الصورة
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="canvas-container">
+                            <canvas id="canvas" width="800" height="600"></canvas>
+                            <div id="imageEditor" style="position: relative; display: none;">
+                                <!-- سيتم إضافة العناصر النصية والشعار هنا -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم عرض الصور للمستخدم -->
+        <section id="userView" class="user-view hidden">
+            <h2><i class="fas fa-images"></i> معرض المستندات المدرسية</h2>
+            <p>اختر فئة لعرض الصور وتحريرها:</p>
+            
+            <div class="category-filter">
+                <button class="filter-btn active" data-category="all">الكل</button>
+                <button class="filter-btn" data-category="سجلات ادارية">سجلات ادارية</button>
+                <button class="filter-btn" data-category="ملازم دراسية">ملازم دراسية</button>
+                <button class="filter-btn" data-category="خطط يومية">خطط يومية</button>
+                <button class="filter-btn" data-category="سجلات الدرجات">سجلات الدرجات</button>
+            </div>
+            
+            <div id="userGallery" class="gallery">
+                <!-- سيتم إضافة الصور هنا بواسطة JavaScript -->
+            </div>
+        </section>
+
+        <!-- Modal لعرض وتحرير الصورة للمستخدم -->
+        <div id="imageModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>تحرير الصورة</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div id="modalMessage" class="status-message hidden"></div>
+                <div id="modalEditor" class="editor-container">
+                    <div class="editor-tools">
+                        <h3><i class="fas fa-edit"></i> أدوات التحرير</h3>
+                        <div class="tool-group">
+                            <h4>خصائص النص المحدد</h4>
+                            <div class="form-group">
+                                <label>نوع الخط:</label>
+                                <select id="modalFontFamily" class="font-selector">
+                                    <option value="Arial, sans-serif">Arial</option>
+                                    <option value="'Cairo', sans-serif" selected>Cairo</option>
+                                    <option value="'Times New Roman', serif">Times New Roman</option>
+                                    <option value="'Courier New', monospace">Courier New</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>حجم الخط:</label>
+                                <div class="slider-container">
+                                    <input type="range" id="modalFontSize" min="10" max="72" value="24" step="1">
+                                    <span id="modalFontSizeValue">24px</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>سمك الخط:</label>
+                                <select id="modalFontWeight" class="font-selector">
+                                    <option value="normal">عادي</option>
+                                    <option value="bold">غامق</option>
+                                    <option value="bolder">أكثر غلاظة</option>
+                                    <option value="lighter">أخف</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>لون النص:</label>
+                                <div class="color-picker">
+                                    <div class="color-preview" id="modalColorPreview" style="background-color: #000000;"></div>
+                                    <input type="color" id="modalTextColor" value="#000000">
+                                    <input type="text" id="modalColorHex" value="#000000" class="form-control" style="width: 100px;">
+                                </div>
+                            </div>
+                            
+                            <button id="modalRemoveSelected" class="btn btn-danger" style="width: 100%; margin-top: 10px;">
+                                <i class="fas fa-trash"></i> حذف العنصر المحدد
+                            </button>
+                        </div>
+                        
+                        <div class="download-btn-container">
+                            <button id="modalDownloadImage" class="btn btn-success">
+                                <i class="fas fa-download"></i> تحميل الصورة المعدلة
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="canvas-container">
+                        <canvas id="modalCanvas" width="800" height="600"></canvas>
+                        <div id="modalImageEditor" style="position: relative;">
+                            <!-- سيتم إضافة العناصر النصية هنا -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // البيانات والمتغيرات العامة
+        const ADMIN_PASSWORD = "Asasxzxz!@#rtyooo";
+        let currentUser = null;
+        let images = JSON.parse(localStorage.getItem('school_docs_images')) || [];
+        let selectedCategory = "سجلات ادارية";
+        let selectedImage = null;
+        let selectedElement = null;
+        let logoImage = null;
+        let logoSize = 113; // 3 سم تقريباً بالبكسل (3 * 37.8)
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        
+        // حالات التطبيق
+        const APP_STATE = {
+            LOGIN: 'login',
+            ADMIN: 'admin',
+            USER: 'user'
+        };
+        
+        let appState = APP_STATE.USER;
+        
+        // عناصر DOM
+        const loginSection = document.getElementById('loginSection');
+        const adminPanel = document.getElementById('adminPanel');
+        const userView = document.getElementById('userView');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const userViewBtn = document.getElementById('userViewBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginMessage = document.getElementById('loginMessage');
+        const imageUpload = document.getElementById('imageUpload');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const categoryCards = document.querySelectorAll('.category-card');
+        const navLinks = document.querySelectorAll('.nav-menu a');
+        const sectionContents = document.querySelectorAll('.section-content');
+        const adminGallery = document.getElementById('adminGallery');
+        const userGallery = document.getElementById('userGallery');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const imageModal = document.getElementById('imageModal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const modalCanvas = document.getElementById('modalCanvas');
+        const modalCtx = modalCanvas.getContext('2d');
+        const imageEditor = document.getElementById('imageEditor');
+        const modalImageEditor = document.getElementById('modalImageEditor');
+        
+        // تهيئة التطبيق
+        function initApp() {
+            // عرض حالة التطبيق الافتراضية (واجهة المستخدم)
+            showUserView();
+            
+            // تحميل الصور من التخزين المحلي
+            loadImages();
+            
+            // إضافة مستمعي الأحداث
+            setupEventListeners();
+            
+            // عرض الصور في المعرض
+            displayImagesInGallery();
+        }
+        
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // أحداث تسجيل الدخول والخروج
+            adminLoginBtn.addEventListener('click', showLoginSection);
+            userViewBtn.addEventListener('click', showUserView);
+            loginBtn.addEventListener('click', handleLogin);
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // أحداث رفع الصور
+            imageUpload.addEventListener('change', handleImageUpload);
+            
+            // أحداث اختيار الفئة
+            categoryCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    categoryCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedCategory = card.dataset.category;
+                });
+            });
+            
+            // أحداث التنقل في لوحة التحكم
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.dataset.section;
+                    
+                    // تحديد العنصر النشط
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // عرض القسم المحدد
+                    sectionContents.forEach(content => content.classList.add('hidden'));
+                    document.getElementById(`${section}Section`).classList.remove('hidden');
+                    
+                    // إذا كان القسم هو المعرض، قم بتحديثه
+                    if (section === 'gallery') {
+                        displayImagesInGallery();
+                    }
+                    
+                    // إذا كان القسم هو المحرر، قم بإعداد المحرر
+                    if (section === 'editor' && selectedImage) {
+                        setupImageEditor(selectedImage);
+                    }
+                });
+            });
+            
+            // أحداث معرض المستخدم
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterImagesByCategory(btn.dataset.category);
+                });
+            });
+            
+            // أحداث المحرر
+            setupEditorEvents();
+            
+            // أحداث الـ Modal
+            closeModalBtn.addEventListener('click', () => {
+                imageModal.classList.add('hidden');
+            });
+            
+            // إغلاق الـ Modal عند النقر خارج المحتوى
+            imageModal.addEventListener('click', (e) => {
+                if (e.target === imageModal) {
+                    imageModal.classList.add('hidden');
+                }
+            });
+            
+            // اختيار صورة من المعرض
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('edit-image') || e.target.parentElement.classList.contains('edit-image')) {
+                    const imageId = e.target.closest('.image-card').dataset.id;
+                    const image = images.find(img => img.id == imageId);
+                    if (image) {
+                        if (appState === APP_STATE.ADMIN) {
+                            // في حالة المدير، استخدم المحرر الرئيسي
+                            selectedImage = image;
+                            navLinks.forEach(l => l.classList.remove('active'));
+                            document.querySelector('[data-section="editor"]').classList.add('active');
+                            sectionContents.forEach(content => content.classList.add('hidden'));
+                            document.getElementById('editorSection').classList.remove('hidden');
+                            setupImageEditor(image);
+                        } else {
+                            // في حالة المستخدم، استخدم الـ Modal
+                            openImageModal(image);
+                        }
+                    }
+                }
+                
+                // حذف صورة من المعرض (للمدير فقط)
+                if (e.target.classList.contains('delete-image') || e.target.parentElement.classList.contains('delete-image')) {
+                    if (appState !== APP_STATE.ADMIN) return;
+                    
+                    const imageId = e.target.closest('.image-card').dataset.id;
+                    if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
+                        deleteImage(imageId);
+                    }
+                }
+            });
+        }
+        
+        // إعداد أحداث المحرر
+        function setupEditorEvents() {
+            // إضافة حقول نصية
+            document.querySelectorAll('.add-text').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const field = btn.dataset.field;
+                    addTextField(field);
+                });
+            });
+            
+            // رفع الشعار
+            document.getElementById('logoUpload').addEventListener('change', handleLogoUpload);
+            
+            // تغيير حجم الشعار
+            document.getElementById('logoSize').addEventListener('input', (e) => {
+                logoSize = parseInt(e.target.value);
+                document.getElementById('logoSizeValue').textContent = `${Math.round(logoSize / 37.8 * 10) / 10} سم`;
+                updateLogoSize();
+            });
+            
+            // أدوات تحرير النص
+            document.getElementById('fontFamily').addEventListener('change', updateTextStyle);
+            document.getElementById('fontSize').addEventListener('input', (e) => {
+                document.getElementById('fontSizeValue').textContent = `${e.target.value}px`;
+                updateTextStyle();
+            });
+            document.getElementById('fontWeight').addEventListener('change', updateTextStyle);
+            document.getElementById('textColor').addEventListener('input', (e) => {
+                document.getElementById('colorHex').value = e.target.value;
+                document.getElementById('colorPreview').style.backgroundColor = e.target.value;
+                updateTextStyle();
+            });
+            document.getElementById('colorHex').addEventListener('change', (e) => {
+                document.getElementById('textColor').value = e.target.value;
+                document.getElementById('colorPreview').style.backgroundColor = e.target.value;
+                updateTextStyle();
+            });
+            
+            // حذف العنصر المحدد
+            document.getElementById('removeSelected').addEventListener('click', removeSelectedElement);
+            
+            // تحميل الصورة
+            document.getElementById('downloadImage').addEventListener('click', downloadEditedImage);
+            
+            // أحداث الـ Modal للمستخدم
+            document.getElementById('modalFontFamily').addEventListener('change', updateModalTextStyle);
+            document.getElementById('modalFontSize').addEventListener('input', (e) => {
+                document.getElementById('modalFontSizeValue').textContent = `${e.target.value}px`;
+                updateModalTextStyle();
+            });
+            document.getElementById('modalFontWeight').addEventListener('change', updateModalTextStyle);
+            document.getElementById('modalTextColor').addEventListener('input', (e) => {
+                document.getElementById('modalColorHex').value = e.target.value;
+                document.getElementById('modalColorPreview').style.backgroundColor = e.target.value;
+                updateModalTextStyle();
+            });
+            document.getElementById('modalColorHex').addEventListener('change', (e) => {
+                document.getElementById('modalTextColor').value = e.target.value;
+                document.getElementById('modalColorPreview').style.backgroundColor = e.target.value;
+                updateModalTextStyle();
+            });
+            document.getElementById('modalRemoveSelected').addEventListener('click', removeModalSelectedElement);
+            document.getElementById('modalDownloadImage').addEventListener('click', downloadModalEditedImage);
+        }
+        
+        // عرض واجهة تسجيل الدخول
+        function showLoginSection() {
+            appState = APP_STATE.LOGIN;
+            loginSection.classList.remove('hidden');
+            adminPanel.classList.add('hidden');
+            userView.classList.add('hidden');
+            loginMessage.classList.add('hidden');
+            adminPasswordInput.value = '';
+        }
+        
+        // عرض واجهة المدير
+        function showAdminPanel() {
+            appState = APP_STATE.ADMIN;
+            loginSection.classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+            userView.classList.add('hidden');
+            
+            // تحديد قسم رفع الصور كافتراضي
+            navLinks.forEach(l => l.classList.remove('active'));
+            document.querySelector('[data-section="upload"]').classList.add('active');
+            sectionContents.forEach(content => content.classList.add('hidden'));
+            document.getElementById('uploadSection').classList.remove('hidden');
+            
+            // تحديد فئة افتراضية
+            categoryCards.forEach(c => c.classList.remove('selected'));
+            document.querySelector('.category-card').classList.add('selected');
+        }
+        
+        // عرض واجهة المستخدم
+        function showUserView() {
+            appState = APP_STATE.USER;
+            loginSection.classList.add('hidden');
+            adminPanel.classList.add('hidden');
+            userView.classList.remove('hidden');
+            displayImagesInGallery('all');
+        }
+        
+        // معالجة تسجيل الدخول
+        function handleLogin() {
+            const password = adminPasswordInput.value;
+            
+            if (password === ADMIN_PASSWORD) {
+                currentUser = 'admin';
+                showAdminPanel();
+                showMessage(loginMessage, 'تم تسجيل الدخول بنجاح!', 'success');
+            } else {
+                showMessage(loginMessage, 'كلمة المرور غير صحيحة!', 'error');
+            }
+        }
+        
+        // معالجة تسجيل الخروج
+        function handleLogout() {
+            currentUser = null;
+            showUserView();
+        }
+        
+        // معالجة رفع الصور
+        async function handleImageUpload(e) {
+            const files = e.target.files;
+            if (!files.length) return;
+            
+            // تأكيد اختيار الفئة
+            if (!selectedCategory) {
+                showMessage(uploadStatus, 'الرجاء اختيار فئة للصورة أولاً!', 'error');
+                return;
+            }
+            
+            showMessage(uploadStatus, 'جاري رفع الصور...', 'success');
+            
+            // في بيئة حقيقية، هنا نرفع الصور إلى Imgur API
+            // لكن في هذا المثال، سنستخدم التخزين المحلي
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // تحويل الصورة إلى base64
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    const imageData = event.target.result;
+                    
+                    // إنشاء كائن للصورة
+                    const newImage = {
+                        id: Date.now() + i,
+                        name: file.name,
+                        url: imageData, // في التطبيق الحقيقي، سيكون هذا رابط Imgur
+                        category: selectedCategory,
+                        uploadedAt: new Date().toISOString(),
+                        elements: [], // العناصر النصية المضافة
+                        logo: null // الشعار
+                    };
+                    
+                    // إضافة الصورة إلى المصفوفة
+                    images.push(newImage);
+                    
+                    // حفظ في التخزين المحلي
+                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                    
+                    // عرض رسالة النجاح
+                    if (i === files.length - 1) {
+                        showMessage(uploadStatus, `تم رفع ${files.length} صورة بنجاح!`, 'success');
+                        displayImagesInGallery();
+                        
+                        // إعادة تعيين حقل الرفع
+                        imageUpload.value = '';
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // معالجة رفع الشعار
+        function handleLogoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                logoImage = event.target.result;
+                addLogoToEditor();
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // تحميل الصور من التخزين المحلي
+        function loadImages() {
+            const savedImages = localStorage.getItem('school_docs_images');
+            if (savedImages) {
+                images = JSON.parse(savedImages);
+            }
+        }
+        
+        // عرض الصور في المعرض
+        function displayImagesInGallery(filter = 'all') {
+            // للمعرض الخاص بالمدير
+            if (adminGallery) {
+                adminGallery.innerHTML = '';
+                
+                images.forEach(image => {
+                    const imageCard = createImageCard(image);
+                    adminGallery.appendChild(imageCard);
+                });
+            }
+            
+            // للمعرض الخاص بالمستخدم
+            if (userGallery) {
+                filterImagesByCategory(filter);
+            }
+        }
+        
+        // تصفية الصور حسب الفئة
+        function filterImagesByCategory(category) {
+            userGallery.innerHTML = '';
+            
+            let filteredImages = images;
+            if (category !== 'all') {
+                filteredImages = images.filter(img => img.category === category);
+            }
+            
+            if (filteredImages.length === 0) {
+                userGallery.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                        <i class="fas fa-images" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                        <h3 style="color: #777;">لا توجد صور في هذه الفئة</h3>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredImages.forEach(image => {
+                const imageCard = createImageCard(image, true);
+                userGallery.appendChild(imageCard);
+            });
+        }
+        
+        // إنشاء بطاقة صورة
+        function createImageCard(image, isUser = false) {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.dataset.id = image.id;
+            
+            const categoryLabel = getCategoryLabel(image.category);
+            
+            card.innerHTML = `
+                <img src="${image.url}" alt="${image.name}">
+                <div class="image-info">
+                    <span class="image-category">${categoryLabel}</span>
+                    <h4>${image.name}</h4>
+                    <p>تم الرفع: ${formatDate(image.uploadedAt)}</p>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-primary edit-image" style="flex: 1;">
+                            <i class="fas fa-edit"></i> ${isUser ? 'عرض وتحرير' : 'تحرير'}
+                        </button>
+                        ${!isUser ? `
+                            <button class="btn btn-danger delete-image">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // الحصول على تسمية الفئة
+        function getCategoryLabel(category) {
+            const labels = {
+                'سجلات ادارية': 'سجلات ادارية',
+                'ملازم دراسية': 'ملازم دراسية',
+                'خطط يومية': 'خطط يومية',
+                'سجلات الدرجات': 'سجلات الدرجات'
+            };
+            
+            return labels[category] || category;
+        }
+        
+        // تنسيق التاريخ
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-EG');
+        }
+        
+        // إعداد محرر الصور
+        function setupImageEditor(image) {
+            selectedImage = image;
+            
+            // مسح الكانفاس
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // تحميل الصورة إلى الكانفاس
+            const img = new Image();
+            img.onload = function() {
+                // حساب الأبعاد المناسبة للكانفاس
+                const ratio = Math.min(canvas.width / img.width, canvas.height / img.height);
+                const width = img.width * ratio;
+                const height = img.height * ratio;
+                const x = (canvas.width - width) / 2;
+                const y = (canvas.height - height) / 2;
+                
+                // رسم الصورة
+                ctx.drawImage(img, x, y, width, height);
+                
+                // حفظ معلومات الصورة
+                selectedImage.canvasInfo = { x, y, width, height, ratio };
+                
+                // تحميل العناصر النصية إذا كانت موجودة
+                if (image.elements && image.elements.length > 0) {
+                    image.elements.forEach(element => {
+                        addTextFieldToEditor(element.text, element);
+                    });
+                }
+                
+                // تحميل الشعار إذا كان موجوداً
+                if (image.logo) {
+                    logoImage = image.logo.url;
+                    logoSize = image.logo.size || 113;
+                    addLogoToEditor();
+                }
+            };
+            
+            img.src = image.url;
+            
+            // إظهار محرر الصور
+            imageEditor.style.display = 'block';
+        }
+        
+        // إضافة حقل نصي إلى المحرر
+        function addTextField(field) {
+            const elementId = `text-${Date.now()}`;
+            const element = {
+                id: elementId,
+                text: field,
+                type: 'text',
+                fontFamily: "'Cairo', sans-serif",
+                fontSize: 24,
+                fontWeight: 'normal',
+                color: '#000000',
+                x: 100,
+                y: 100
+            };
+            
+            // إضافة إلى الصورة المحددة
+            if (selectedImage) {
+                if (!selectedImage.elements) selectedImage.elements = [];
+                selectedImage.elements.push(element);
+                localStorage.setItem('school_docs_images', JSON.stringify(images));
+            }
+            
+            // إضافة إلى المحرر
+            addTextFieldToEditor(field, element);
+        }
+        
+        // إضافة حقل نصي إلى واجهة المحرر
+        function addTextFieldToEditor(text, element) {
+            const textElement = document.createElement('div');
+            textElement.id = element.id;
+            textElement.className = 'text-element';
+            textElement.textContent = text;
+            textElement.style.position = 'absolute';
+            textElement.style.left = `${element.x}px`;
+            textElement.style.top = `${element.y}px`;
+            textElement.style.fontFamily = element.fontFamily;
+            textElement.style.fontSize = `${element.fontSize}px`;
+            textElement.style.fontWeight = element.fontWeight;
+            textElement.style.color = element.color;
+            textElement.style.cursor = 'move';
+            textElement.style.userSelect = 'none';
+            textElement.style.padding = '5px';
+            textElement.style.borderRadius = '4px';
+            textElement.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            
+            // إضافة مستمعي الأحداث للسحب والتحديد
+            textElement.addEventListener('mousedown', startDrag);
+            textElement.addEventListener('click', selectElement);
+            
+            imageEditor.appendChild(textElement);
+        }
+        
+        // إضافة الشعار إلى المحرر
+        function addLogoToEditor() {
+            if (!logoImage) return;
+            
+            // إزالة الشعار القديم إذا كان موجوداً
+            const oldLogo = document.getElementById('logo-element');
+            if (oldLogo) oldLogo.remove();
+            
+            // إنشاء عنصر الشعار
+            const logoElement = document.createElement('div');
+            logoElement.id = 'logo-element';
+            logoElement.className = 'logo-element';
+            logoElement.style.position = 'absolute';
+            logoElement.style.left = '50px';
+            logoElement.style.top = '50px';
+            logoElement.style.width = `${logoSize}px`;
+            logoElement.style.height = `${logoSize}px`;
+            logoElement.style.cursor = 'move';
+            logoElement.style.userSelect = 'none';
+            
+            const img = document.createElement('img');
+            img.src = logoImage;
+            logoElement.appendChild(img);
+            
+            // إضافة مستمعي الأحداث للسحب والتحديد
+            logoElement.addEventListener('mousedown', startDrag);
+            logoElement.addEventListener('click', selectElement);
+            
+            imageEditor.appendChild(logoElement);
+            
+            // حفظ في بيانات الصورة
+            if (selectedImage) {
+                selectedImage.logo = {
+                    url: logoImage,
+                    size: logoSize
+                };
+                localStorage.setItem('school_docs_images', JSON.stringify(images));
+            }
+        }
+        
+        // تحديث حجم الشعار
+        function updateLogoSize() {
+            const logoElement = document.getElementById('logo-element');
+            if (logoElement) {
+                logoElement.style.width = `${logoSize}px`;
+                logoElement.style.height = `${logoSize}px`;
+                
+                // تحديث في بيانات الصورة
+                if (selectedImage && selectedImage.logo) {
+                    selectedImage.logo.size = logoSize;
+                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                }
+            }
+        }
+        
+        // بدء سحب العنصر
+        function startDrag(e) {
+            selectedElement = e.target;
+            selectedElement.classList.add('selected');
+            
+            isDragging = true;
+            dragOffset.x = e.clientX - selectedElement.offsetLeft;
+            dragOffset.y = e.clientY - selectedElement.offsetTop;
+            
+            document.addEventListener('mousemove', dragElement);
+            document.addEventListener('mouseup', stopDrag);
+            
+            e.preventDefault();
+        }
+        
+        // سحب العنصر
+        function dragElement(e) {
+            if (!isDragging || !selectedElement) return;
+            
+            const x = e.clientX - dragOffset.x;
+            const y = e.clientY - dragOffset.y;
+            
+            selectedElement.style.left = `${x}px`;
+            selectedElement.style.top = `${y}px`;
+            
+            // تحديث الموضع في بيانات الصورة
+            updateElementPosition(selectedElement.id, x, y);
+        }
+        
+        // إيقاف السحب
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', dragElement);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+        
+        // تحديث موضع العنصر في البيانات
+        function updateElementPosition(elementId, x, y) {
+            if (!selectedImage) return;
+            
+            // البحث عن العنصر في مصفوفة العناصر النصية
+            if (selectedImage.elements) {
+                const element = selectedImage.elements.find(el => el.id === elementId);
+                if (element) {
+                    element.x = x;
+                    element.y = y;
+                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                    return;
+                }
+            }
+            
+            // إذا كان الشعار
+            if (elementId === 'logo-element' && selectedImage.logo) {
+                selectedImage.logo.x = x;
+                selectedImage.logo.y = y;
+                localStorage.setItem('school_docs_images', JSON.stringify(images));
+            }
+        }
+        
+        // تحديد العنصر
+        function selectElement(e) {
+            // إزالة التحديد من جميع العناصر
+            document.querySelectorAll('.text-element, .logo-element').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // تحديد العنصر الحالي
+            selectedElement = e.target.closest('.text-element, .logo-element');
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+                
+                // تحديث أدوات التحرير بناءً على نوع العنصر
+                if (selectedElement.classList.contains('text-element')) {
+                    // البحث عن العنصر في البيانات
+                    if (selectedImage && selectedImage.elements) {
+                        const element = selectedImage.elements.find(el => el.id === selectedElement.id);
+                        if (element) {
+                            document.getElementById('fontFamily').value = element.fontFamily;
+                            document.getElementById('fontSize').value = element.fontSize;
+                            document.getElementById('fontSizeValue').textContent = `${element.fontSize}px`;
+                            document.getElementById('fontWeight').value = element.fontWeight;
+                            document.getElementById('textColor').value = element.color;
+                            document.getElementById('colorHex').value = element.color;
+                            document.getElementById('colorPreview').style.backgroundColor = element.color;
+                        }
+                    }
+                }
+            }
+            
+            e.stopPropagation();
+        }
+        
+        // تحديث نمط النص المحدد
+        function updateTextStyle() {
+            if (!selectedElement || !selectedElement.classList.contains('text-element')) return;
+            
+            const fontFamily = document.getElementById('fontFamily').value;
+            const fontSize = document.getElementById('fontSize').value;
+            const fontWeight = document.getElementById('fontWeight').value;
+            const color = document.getElementById('textColor').value;
+            
+            // تطبيق الأنماط على العنصر
+            selectedElement.style.fontFamily = fontFamily;
+            selectedElement.style.fontSize = `${fontSize}px`;
+            selectedElement.style.fontWeight = fontWeight;
+            selectedElement.style.color = color;
+            
+            // تحديث البيانات
+            if (selectedImage && selectedImage.elements) {
+                const element = selectedImage.elements.find(el => el.id === selectedElement.id);
+                if (element) {
+                    element.fontFamily = fontFamily;
+                    element.fontSize = parseInt(fontSize);
+                    element.fontWeight = fontWeight;
+                    element.color = color;
+                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                }
+            }
+        }
+        
+        // حذف العنصر المحدد
+        function removeSelectedElement() {
+            if (!selectedElement) return;
+            
+            // حذف من الواجهة
+            selectedElement.remove();
+            
+            // حذف من البيانات
+            if (selectedImage) {
+                if (selectedElement.classList.contains('text-element')) {
+                    // حذف عنصر نصي
+                    selectedImage.elements = selectedImage.elements.filter(el => el.id !== selectedElement.id);
+                } else if (selectedElement.id === 'logo-element') {
+                    // حذف الشعار
+                    selectedImage.logo = null;
+                    logoImage = null;
+                }
+                
+                localStorage.setItem('school_docs_images', JSON.stringify(images));
+            }
+            
+            selectedElement = null;
+        }
+        
+        // تحميل الصورة المحررة
+        function downloadEditedImage() {
+            if (!selectedImage) {
+                alert('الرجاء تحميل صورة أولاً!');
+                return;
+            }
+            
+            // إنشاء كانفاس جديد مع جميع العناصر
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // تعيين أبعاد الكانفاس
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            
+            // رسم الصورة الأصلية
+            const img = new Image();
+            img.onload = function() {
+                const canvasInfo = selectedImage.canvasInfo;
+                tempCtx.drawImage(img, canvasInfo.x, canvasInfo.y, canvasInfo.width, canvasInfo.height);
+                
+                // رسم العناصر النصية
+                if (selectedImage.elements) {
+                    selectedImage.elements.forEach(element => {
+                        tempCtx.font = `${element.fontWeight} ${element.fontSize}px ${element.fontFamily}`;
+                        tempCtx.fillStyle = element.color;
+                        tempCtx.fillText(element.text, element.x, element.y + parseInt(element.fontSize));
+                    });
+                }
+                
+                // رسم الشعار
+                if (selectedImage.logo && selectedImage.logo.url) {
+                    const logoImg = new Image();
+                    logoImg.onload = function() {
+                        const logoX = selectedImage.logo.x || 50;
+                        const logoY = selectedImage.logo.y || 50;
+                        const logoSize = selectedImage.logo.size || 113;
+                        
+                        tempCtx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+                        
+                        // تحميل الصورة
+                        const link = document.createElement('a');
+                        link.download = `محرر-مدرسي-${selectedImage.name}`;
+                        link.href = tempCanvas.toDataURL('image/png');
+                        link.click();
+                    };
+                    
+                    logoImg.src = selectedImage.logo.url;
+                } else {
+                    // تحميل الصورة بدون شعار
+                    const link = document.createElement('a');
+                    link.download = `محرر-مدرسي-${selectedImage.name}`;
+                    link.href = tempCanvas.toDataURL('image/png');
+                    link.click();
+                }
+            };
+            
+            img.src = selectedImage.url;
+        }
+        
+        // فتح صورة في الـ Modal للمستخدم
+        function openImageModal(image) {
+            selectedImage = image;
+            
+            // مسح الكانفاس
+            modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+            
+            // تحميل الصورة إلى الكانفاس
+            const img = new Image();
+            img.onload = function() {
+                // حساب الأبعاد المناسبة للكانفاس
+                const ratio = Math.min(modalCanvas.width / img.width, modalCanvas.height / img.height);
+                const width = img.width * ratio;
+                const height = img.height * ratio;
+                const x = (modalCanvas.width - width) / 2;
+                const y = (modalCanvas.height - height) / 2;
+                
+                // رسم الصورة
+                modalCtx.drawImage(img, x, y, width, height);
+                
+                // حفظ معلومات الصورة
+                selectedImage.modalCanvasInfo = { x, y, width, height, ratio };
+                
+                // تحميل العناصر النصية إذا كانت موجودة
+                modalImageEditor.innerHTML = '';
+                if (image.elements && image.elements.length > 0) {
+                    image.elements.forEach(element => {
+                        addTextFieldToModalEditor(element.text, element);
+                    });
+                }
+            };
+            
+            img.src = image.url;
+            
+            // إظهار الـ Modal
+            imageModal.classList.remove('hidden');
+        }
+        
+        // إضافة حقل نصي إلى محرر الـ Modal
+        function addTextFieldToModalEditor(text, element) {
+            const textElement = document.createElement('div');
+            textElement.id = `modal-${element.id}`;
+            textElement.className = 'text-element';
+            textElement.textContent = text;
+            textElement.style.position = 'absolute';
+            textElement.style.left = `${element.x}px`;
+            textElement.style.top = `${element.y}px`;
+            textElement.style.fontFamily = element.fontFamily;
+            textElement.style.fontSize = `${element.fontSize}px`;
+            textElement.style.fontWeight = element.fontWeight;
+            textElement.style.color = element.color;
+            textElement.style.cursor = 'move';
+            textElement.style.userSelect = 'none';
+            textElement.style.padding = '5px';
+            textElement.style.borderRadius = '4px';
+            textElement.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            
+            // إضافة مستمعي الأحداث للسحب والتحديد
+            textElement.addEventListener('mousedown', startModalDrag);
+            textElement.addEventListener('click', selectModalElement);
+            
+            modalImageEditor.appendChild(textElement);
+        }
+        
+        // بدء سحب العنصر في الـ Modal
+        function startModalDrag(e) {
+            selectedElement = e.target;
+            selectedElement.classList.add('selected');
+            
+            isDragging = true;
+            dragOffset.x = e.clientX - selectedElement.offsetLeft;
+            dragOffset.y = e.clientY - selectedElement.offsetTop;
+            
+            document.addEventListener('mousemove', dragModalElement);
+            document.addEventListener('mouseup', stopModalDrag);
+            
+            e.preventDefault();
+        }
+        
+        // سحب العنصر في الـ Modal
+        function dragModalElement(e) {
+            if (!isDragging || !selectedElement) return;
+            
+            const x = e.clientX - dragOffset.x;
+            const y = e.clientY - dragOffset.y;
+            
+            selectedElement.style.left = `${x}px`;
+            selectedElement.style.top = `${y}px`;
+            
+            // تحديث الموضع في بيانات الصورة
+            updateModalElementPosition(selectedElement.id, x, y);
+        }
+        
+        // إيقاف السحب في الـ Modal
+        function stopModalDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', dragModalElement);
+            document.removeEventListener('mouseup', stopModalDrag);
+        }
+        
+        // تحديث موضع العنصر في بيانات الـ Modal
+        function updateModalElementPosition(elementId, x, y) {
+            if (!selectedImage || !selectedImage.elements) return;
+            
+            // استخراج المعرف الأصلي من المعرف المعدل
+            const originalId = elementId.replace('modal-', '');
+            
+            // البحث عن العنصر في مصفوفة العناصر النصية
+            const element = selectedImage.elements.find(el => el.id === originalId);
+            if (element) {
+                element.x = x;
+                element.y = y;
+                localStorage.setItem('school_docs_images', JSON.stringify(images));
+            }
+        }
+        
+        // تحديد العنصر في الـ Modal
+        function selectModalElement(e) {
+            // إزالة التحديد من جميع العناصر
+            document.querySelectorAll('#modalImageEditor .text-element').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // تحديد العنصر الحالي
+            selectedElement = e.target.closest('.text-element');
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+                
+                // تحديث أدوات التحرير بناءً على نوع العنصر
+                // استخراج المعرف الأصلي من المعرف المعدل
+                const originalId = selectedElement.id.replace('modal-', '');
+                
+                // البحث عن العنصر في البيانات
+                if (selectedImage && selectedImage.elements) {
+                    const element = selectedImage.elements.find(el => el.id === originalId);
+                    if (element) {
+                        document.getElementById('modalFontFamily').value = element.fontFamily;
+                        document.getElementById('modalFontSize').value = element.fontSize;
+                        document.getElementById('modalFontSizeValue').textContent = `${element.fontSize}px`;
+                        document.getElementById('modalFontWeight').value = element.fontWeight;
+                        document.getElementById('modalTextColor').value = element.color;
+                        document.getElementById('modalColorHex').value = element.color;
+                        document.getElementById('modalColorPreview').style.backgroundColor = element.color;
+                    }
+                }
+            }
+            
+            e.stopPropagation();
+        }
+        
+        // تحديث نمط النص المحدد في الـ Modal
+        function updateModalTextStyle() {
+            if (!selectedElement || !selectedElement.classList.contains('text-element')) return;
+            
+            const fontFamily = document.getElementById('modalFontFamily').value;
+            const fontSize = document.getElementById('modalFontSize').value;
+            const fontWeight = document.getElementById('modalFontWeight').value;
+            const color = document.getElementById('modalTextColor').value;
+            
+            // تطبيق الأنماط على العنصر
+            selectedElement.style.fontFamily = fontFamily;
+            selectedElement.style.fontSize = `${fontSize}px`;
+            selectedElement.style.fontWeight = fontWeight;
+            selectedElement.style.color = color;
+            
+            // تحديث البيانات
+            if (selectedImage && selectedImage.elements) {
+                // استخراج المعرف الأصلي من المعرف المعدل
+                const originalId = selectedElement.id.replace('modal-', '');
+                
+                const element = selectedImage.elements.find(el => el.id === originalId);
+                if (element) {
+                    element.fontFamily = fontFamily;
+                    element.fontSize = parseInt(fontSize);
+                    element.fontWeight = fontWeight;
+                    element.color = color;
+                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                }
+            }
+        }
+        
+        // حذف العنصر المحدد في الـ Modal
+        function removeModalSelectedElement() {
+            if (!selectedElement) return;
+            
+            // استخراج المعرف الأصلي من المعرف المعدل
+            const originalId = selectedElement.id.replace('modal-', '');
+            
+            // حذف من الواجهة
+            selectedElement.remove();
+            
+            // حذف من البيانات
+            if (selectedImage && selectedImage.elements) {
+                selectedImage.elements = selectedImage.elements.filter(el => el.id !== originalId);
+                localStorage.setItem('school_docs_images', JSON.stringify(images));
+            }
+            
+            selectedElement = null;
+        }
+        
+        // تحميل الصورة المحررة من الـ Modal
+        function downloadModalEditedImage() {
+            if (!selectedImage) return;
+            
+            // إنشاء كانفاس جديد مع جميع العناصر
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // تعيين أبعاد الكانفاس
+            tempCanvas.width = modalCanvas.width;
+            tempCanvas.height = modalCanvas.height;
+            
+            // رسم الصورة الأصلية
+            const img = new Image();
+            img.onload = function() {
+                const canvasInfo = selectedImage.modalCanvasInfo;
+                tempCtx.drawImage(img, canvasInfo.x, canvasInfo.y, canvasInfo.width, canvasInfo.height);
+                
+                // رسم العناصر النصية
+                if (selectedImage.elements) {
+                    selectedImage.elements.forEach(element => {
+                        tempCtx.font = `${element.fontWeight} ${element.fontSize}px ${element.fontFamily}`;
+                        tempCtx.fillStyle = element.color;
+                        tempCtx.fillText(element.text, element.x, element.y + parseInt(element.fontSize));
+                    });
+                }
+                
+                // تحميل الصورة
+                const link = document.createElement('a');
+                link.download = `محرر-مدرسي-${selectedImage.name}`;
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+            };
+            
+            img.src = selectedImage.url;
+        }
+        
+        // حذف صورة
+        function deleteImage(imageId) {
+            images = images.filter(img => img.id != imageId);
+            localStorage.setItem('school_docs_images', JSON.stringify(images));
+            displayImagesInGallery();
+        }
+        
+        // عرض رسالة
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `status-message ${type}`;
+            element.classList.remove('hidden');
+            
+            // إخفاء الرسالة بعد 5 ثوانٍ
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // بدء تشغيل التطبيق
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
