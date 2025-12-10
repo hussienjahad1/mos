@@ -960,6 +960,21 @@
                 <div class="editor-container">
                     <div class="editor-tools">
                         <h3><i class="fas fa-edit"></i> أدوات التحرير</h3>
+                        
+                        <!-- إضافة قسم الشعار في المودال للمستخدم -->
+                        <div class="tool-group">
+                            <h4>إضافة شعار (لوجو)</h4>
+                            <input type="file" id="modalLogoUpload" accept="image/*" class="hidden">
+                            <label for="modalLogoUpload" class="btn btn-outline" style="width: 100%; margin-bottom: 10px;">
+                                <i class="fas fa-image"></i> اختر شعاراً
+                            </label>
+                            <div class="slider-container">
+                                <label>حجم الشعار:</label>
+                                <input type="range" id="modalLogoSize" min="50" max="300" value="113" step="1">
+                                <span id="modalLogoSizeValue">3 سم</span>
+                            </div>
+                        </div>
+                        
                         <div class="tool-group">
                             <h4>خصائص النص المحدد</h4>
                             <div class="form-group">
@@ -1026,7 +1041,7 @@
                             <div id="modalImageContainer" style="position: relative; display: inline-block;">
                                 <img id="modalEditorImage" src="" alt="" style="display: block; max-width: 100%;">
                                 <div id="modalImageEditor" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                                    <!-- سيتم إضافة العناصر النصية هنا -->
+                                    <!-- سيتم إضافة العناصر النصية والشعار هنا -->
                                 </div>
                             </div>
                         </div>
@@ -1066,6 +1081,13 @@
         let dragOffset = { x: 0, y: 0 };
         let imageNaturalSize = { width: 0, height: 0 };
         let imageDisplaySize = { width: 0, height: 0 };
+        
+        // متغيرات خاصة بالمستخدم العادي (مودال)
+        let modalLogoImage = null;
+        let modalLogoSize = 113;
+        let modalLogoElement = null;
+        let modalImageNaturalSize = { width: 0, height: 0 };
+        let modalImageDisplaySize = { width: 0, height: 0 };
         
         // حالات التطبيق
         const APP_STATE = {
@@ -1415,6 +1437,7 @@
             
             document.getElementById('downloadImage').addEventListener('click', downloadEditedImage);
             
+            // أحداث خاصة بالمستخدم العادي (مودال)
             document.getElementById('modalFontFamily').addEventListener('change', updateModalTextStyle);
             document.getElementById('modalFontSize').addEventListener('input', (e) => {
                 document.getElementById('modalFontSizeValue').textContent = `${e.target.value}px`;
@@ -1433,6 +1456,14 @@
             });
             document.getElementById('modalRemoveSelected').addEventListener('click', removeModalSelectedElement);
             document.getElementById('modalDownloadImage').addEventListener('click', downloadModalEditedImage);
+            
+            // أحداث الشعار في المودال
+            document.getElementById('modalLogoUpload').addEventListener('change', handleModalLogoUpload);
+            document.getElementById('modalLogoSize').addEventListener('input', (e) => {
+                modalLogoSize = parseInt(e.target.value);
+                document.getElementById('modalLogoSizeValue').textContent = `${Math.round(modalLogoSize / 37.8 * 10) / 10} سم`;
+                updateModalLogoSize();
+            });
         }
         
         // عرض واجهة تسجيل الدخول
@@ -2216,7 +2247,7 @@
                         const y = element.y * img.height;
                         
                         // التعديل: إضافة 12 بكسل إلى الإحداثي y لتصحيح موضع النص
-                        const correctedY = y + 26;
+                        const correctedY = y + 12;
                         
                         // تصحيح الموقع: رسم النص في الموضع الصحيح مع الإزاحة
                         ctx.fillText(element.text, x, correctedY);
@@ -2268,6 +2299,15 @@
             selectedImage = image;
             modalImageEditor.innerHTML = '';
             
+            // إعادة تعيين الشعار للمستخدم
+            modalLogoImage = null;
+            modalLogoSize = 113;
+            modalLogoElement = null;
+            
+            // إعادة تعيين قيمة شريط التمرير
+            document.getElementById('modalLogoSize').value = 113;
+            document.getElementById('modalLogoSizeValue').textContent = '3 سم';
+            
             modalEditorImage.src = image.url;
             
             modalEditorImage.onload = function() {
@@ -2275,6 +2315,11 @@
                 const modalNaturalHeight = modalEditorImage.naturalHeight;
                 const modalDisplayWidth = modalEditorImage.offsetWidth;
                 const modalDisplayHeight = modalEditorImage.offsetHeight;
+                
+                modalImageNaturalSize.width = modalNaturalWidth;
+                modalImageNaturalSize.height = modalNaturalHeight;
+                modalImageDisplaySize.width = modalDisplayWidth;
+                modalImageDisplaySize.height = modalDisplayHeight;
                 
                 modalImageContainer.style.width = modalDisplayWidth + 'px';
                 modalImageContainer.style.height = modalDisplayHeight + 'px';
@@ -2300,6 +2345,72 @@
             };
             
             imageModal.classList.remove('hidden');
+        }
+        
+        // معالجة رفع الشعار في المودال
+        function handleModalLogoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                modalLogoImage = event.target.result;
+                addLogoToModalEditor();
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // إضافة الشعار إلى محرر المودال
+        function addLogoToModalEditor() {
+            if (!modalLogoImage) return;
+            
+            // إزالة الشعار القديم إذا كان موجوداً
+            if (modalLogoElement) {
+                modalLogoElement.remove();
+            }
+            
+            const logoDisplaySize = (modalLogoSize / modalImageNaturalSize.width) * modalImageDisplaySize.width;
+            
+            // الموضع الافتراضي في الزاوية اليمنى العليا
+            const displayX = modalImageDisplaySize.width - logoDisplaySize - 20;
+            const displayY = 20;
+            
+            modalLogoElement = document.createElement('div');
+            modalLogoElement.id = 'modal-logo-element';
+            modalLogoElement.className = 'logo-element';
+            modalLogoElement.style.position = 'absolute';
+            modalLogoElement.style.left = `${displayX}px`;
+            modalLogoElement.style.top = `${displayY}px`;
+            modalLogoElement.style.width = `${logoDisplaySize}px`;
+            modalLogoElement.style.height = `${logoDisplaySize}px`;
+            modalLogoElement.style.cursor = 'move';
+            modalLogoElement.style.userSelect = 'none';
+            modalLogoElement.style.zIndex = '100';
+            
+            const img = document.createElement('img');
+            img.src = modalLogoImage;
+            modalLogoElement.appendChild(img);
+            
+            modalLogoElement.addEventListener('mousedown', startModalDrag);
+            modalLogoElement.addEventListener('click', selectModalElement);
+            
+            modalImageEditor.appendChild(modalLogoElement);
+            
+            // تحديد الشعار تلقائياً
+            modalLogoElement.classList.add('selected');
+            selectedElement = modalLogoElement;
+        }
+        
+        // تحديث حجم الشعار في المودال
+        function updateModalLogoSize() {
+            if (!modalLogoElement) return;
+            
+            const newDisplaySize = (modalLogoSize / modalImageNaturalSize.width) * modalImageDisplaySize.width;
+            
+            modalLogoElement.style.width = `${newDisplaySize}px`;
+            modalLogoElement.style.height = `${newDisplaySize}px`;
         }
         
         // إضافة حقل نصي إلى محرر الـ Modal
@@ -2424,7 +2535,7 @@
         
         // تحديث موضع العنصر في بيانات الـ Modal
         function updateModalElementPosition(elementId, x, y) {
-            if (!selectedImage || !selectedImage.elements) return;
+            if (!selectedImage) return;
             
             const modalDisplayWidth = modalEditorImage.offsetWidth;
             const modalDisplayHeight = modalEditorImage.offsetHeight;
@@ -2432,19 +2543,23 @@
             const xRatio = x / modalDisplayWidth;
             const yRatio = y / modalDisplayHeight;
             
-            const originalId = elementId.replace('modal-', '');
-            
-            const element = selectedImage.elements.find(el => el.id === originalId);
-            if (element) {
-                element.x = xRatio;
-                element.y = yRatio;
-                updateImageInFirebase(selectedImage);
+            // إذا كان العنصر نصياً (وليس شعاراً)
+            if (elementId.startsWith('modal-')) {
+                const originalId = elementId.replace('modal-', '');
+                
+                const element = selectedImage.elements.find(el => el.id === originalId);
+                if (element) {
+                    element.x = xRatio;
+                    element.y = yRatio;
+                    updateImageInFirebase(selectedImage);
+                }
             }
+            // لا نقوم بحفظ موضع الشعار في قاعدة البيانات لأنه خاص بالمستخدم الحالي فقط
         }
         
         // تحديد العنصر في الـ Modal
         function selectModalElement(e) {
-            document.querySelectorAll('#modalImageEditor .text-element').forEach(el => {
+            document.querySelectorAll('#modalImageEditor .text-element, #modalImageEditor .logo-element').forEach(el => {
                 el.classList.remove('selected');
             });
             
@@ -2452,20 +2567,24 @@
             if (selectedElement) {
                 selectedElement.classList.add('selected');
                 
-                const originalId = selectedElement.id.replace('modal-', '');
-                
-                if (selectedImage && selectedImage.elements) {
-                    const element = selectedImage.elements.find(el => el.id === originalId);
-                    if (element) {
-                        document.getElementById('modalFontFamily').value = element.fontFamily;
-                        document.getElementById('modalFontSize').value = element.fontSize;
-                        document.getElementById('modalFontSizeValue').textContent = `${element.fontSize}px`;
-                        document.getElementById('modalFontWeight').value = element.fontWeight;
-                        document.getElementById('modalTextColor').value = element.color;
-                        document.getElementById('modalColorHex').value = element.color;
-                        document.getElementById('modalColorPreview').style.backgroundColor = element.color;
+                // إذا كان العنصر نصياً
+                if (selectedElement.classList.contains('text-element')) {
+                    const originalId = selectedElement.id.replace('modal-', '');
+                    
+                    if (selectedImage && selectedImage.elements) {
+                        const element = selectedImage.elements.find(el => el.id === originalId);
+                        if (element) {
+                            document.getElementById('modalFontFamily').value = element.fontFamily;
+                            document.getElementById('modalFontSize').value = element.fontSize;
+                            document.getElementById('modalFontSizeValue').textContent = `${element.fontSize}px`;
+                            document.getElementById('modalFontWeight').value = element.fontWeight;
+                            document.getElementById('modalTextColor').value = element.color;
+                            document.getElementById('modalColorHex').value = element.color;
+                            document.getElementById('modalColorPreview').style.backgroundColor = element.color;
+                        }
                     }
                 }
+                // إذا كان شعاراً، لا نحتاج لملء خصائص النص
             }
         }
         
@@ -2506,19 +2625,28 @@
         function removeModalSelectedElement() {
             if (!selectedElement) return;
             
-            const originalId = selectedElement.id.replace('modal-', '');
-            
-            selectedElement.remove();
-            
-            if (selectedImage && selectedImage.elements) {
-                selectedImage.elements = selectedImage.elements.filter(el => el.id !== originalId);
-                updateImageInFirebase(selectedImage);
+            // إذا كان نصاً
+            if (selectedElement.classList.contains('text-element')) {
+                const originalId = selectedElement.id.replace('modal-', '');
+                
+                selectedElement.remove();
+                
+                if (selectedImage && selectedImage.elements) {
+                    selectedImage.elements = selectedImage.elements.filter(el => el.id !== originalId);
+                    updateImageInFirebase(selectedImage);
+                }
+            } 
+            // إذا كان شعاراً
+            else if (selectedElement.classList.contains('logo-element')) {
+                selectedElement.remove();
+                modalLogoElement = null;
+                modalLogoImage = null;
             }
             
             selectedElement = null;
         }
         
-        // تحميل الصورة المحررة من الـ Modal بصيغة PNG مع تصحيح موقع النصوص
+        // تحميل الصورة المحررة من الـ Modal بصيغة PNG مع تصحيح موقع النصوص وإضافة الشعار
         function downloadModalEditedImage() {
             if (!selectedImage) return;
             
@@ -2543,17 +2671,59 @@
                         const y = element.y * img.height;
                         
                         // التعديل: إضافة 12 بكسل إلى الإحداثي y لتصحيح موضع النص
-                        const correctedY = y + 26;
+                        const correctedY = y + 12;
                         
                         // تصحيح الموقع: رسم النص في الموضع الصحيح مع الإزاحة
                         ctx.fillText(element.text, x, correctedY);
                     });
                 }
                 
-                const link = document.createElement('a');
-                link.download = `محرر-مدرسي-${selectedImage.name.replace(/\.[^/.]+$/, "")}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+                // إذا كان هناك شعار مضاف في المودال، نرسمه
+                if (modalLogoImage && modalLogoElement) {
+                    const logoImg = new Image();
+                    logoImg.crossOrigin = 'anonymous';
+                    
+                    logoImg.onload = function() {
+                        // حساب موضع الشعار بالنسبة للصورة الأصلية
+                        const logoX = parseInt(modalLogoElement.style.left);
+                        const logoY = parseInt(modalLogoElement.style.top);
+                        const logoWidth = parseInt(modalLogoElement.style.width);
+                        const logoHeight = parseInt(modalLogoElement.style.height);
+                        
+                        // تحويل الأبعاد من وحدات العرض إلى النسبة المئوية ثم إلى حجم الصورة الأصلية
+                        const xRatio = logoX / modalImageDisplaySize.width;
+                        const yRatio = logoY / modalImageDisplaySize.height;
+                        const widthRatio = logoWidth / modalImageDisplaySize.width;
+                        const heightRatio = logoHeight / modalImageDisplaySize.height;
+                        
+                        const finalX = xRatio * img.width;
+                        const finalY = yRatio * img.height;
+                        const finalWidth = widthRatio * img.width;
+                        const finalHeight = heightRatio * img.height;
+                        
+                        ctx.drawImage(logoImg, finalX, finalY, finalWidth, finalHeight);
+                        
+                        const link = document.createElement('a');
+                        link.download = `محرر-مدرسي-${selectedImage.name.replace(/\.[^/.]+$/, "")}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    };
+                    
+                    logoImg.onerror = function() {
+                        // إذا فشل تحميل صورة الشعار، نحمّل الصورة بدون شعار
+                        const link = document.createElement('a');
+                        link.download = `محرر-مدرسي-${selectedImage.name.replace(/\.[^/.]+$/, "")}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    };
+                    
+                    logoImg.src = modalLogoImage;
+                } else {
+                    const link = document.createElement('a');
+                    link.download = `محرر-مدرسي-${selectedImage.name.replace(/\.[^/.]+$/, "")}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }
             };
             
             img.onerror = function() {
