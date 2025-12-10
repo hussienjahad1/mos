@@ -1345,46 +1345,49 @@
         
         // إضافة حقل نصي في موقع محدد
         function addTextFieldAtPosition(field, displayX, displayY) {
-            const elementId = `text-${Date.now()}`;
-            
-            // تحويل المواقع من حجم العرض إلى النسبة المئوية
-            const xRatio = displayX / imageDisplaySize.width;
-            const yRatio = displayY / imageDisplaySize.height;
-            
-            // الإعدادات الافتراضية
-            const element = {
-                id: elementId,
-                text: field,
-                type: 'text',
-                fontFamily: "'Cairo', sans-serif",
-                fontSize: 27, // حجم افتراضي 27 بكسل
-                fontWeight: '900', // سمك افتراضي ثقيل جداً
-                color: '#000000',
-                x: xRatio,
-                y: yRatio
-            };
-            
-            // إضافة إلى الصورة المحددة
-            if (selectedImage) {
-                if (!selectedImage.elements) selectedImage.elements = [];
-                selectedImage.elements.push(element);
+            // التأكد من أن الأبعاد قد تم حسابها
+            ensureImageDisplayed(() => {
+                const elementId = `text-${Date.now()}`;
                 
-                // تحديث الصورة في Firebase
-                updateImageInFirebase(selectedImage);
-            }
-            
-            // إضافة إلى المحرر
-            const displayFontSize = (element.fontSize / imageNaturalSize.width) * imageDisplaySize.width;
-            
-            addTextFieldToEditor(field, {
-                ...element,
-                x: displayX,
-                y: displayY,
-                fontSize: displayFontSize
+                // تحويل المواقع من حجم العرض إلى النسبة المئوية
+                const xRatio = displayX / imageDisplaySize.width;
+                const yRatio = displayY / imageDisplaySize.height;
+                
+                // الإعدادات الافتراضية
+                const element = {
+                    id: elementId,
+                    text: field,
+                    type: 'text',
+                    fontFamily: "'Cairo', sans-serif",
+                    fontSize: 27, // حجم افتراضي 27 بكسل
+                    fontWeight: '900', // سمك افتراضي ثقيل جداً
+                    color: '#000000',
+                    x: xRatio,
+                    y: yRatio
+                };
+                
+                // إضافة إلى الصورة المحددة
+                if (selectedImage) {
+                    if (!selectedImage.elements) selectedImage.elements = [];
+                    selectedImage.elements.push(element);
+                    
+                    // تحديث الصورة في Firebase
+                    updateImageInFirebase(selectedImage);
+                }
+                
+                // إضافة إلى المحرر
+                const displayFontSize = (element.fontSize / imageNaturalSize.width) * imageDisplaySize.width;
+                
+                addTextFieldToEditor(field, {
+                    ...element,
+                    x: displayX,
+                    y: displayY,
+                    fontSize: displayFontSize
+                });
+                
+                // تحديث أدوات التحرير لتعكس الإعدادات الافتراضية
+                updateEditorToolsToDefaults();
             });
-            
-            // تحديث أدوات التحرير لتعكس الإعدادات الافتراضية
-            updateEditorToolsToDefaults();
         }
         
         // تحديث أدوات التحرير للإعدادات الافتراضية
@@ -1819,45 +1822,60 @@
             editorImage.src = image.url;
             
             editorImage.onload = function() {
-                // حفظ الأبعاد الأصلية والعرضية للصورة
+                // حفظ الأبعاد الأصلية للصورة
                 imageNaturalSize.width = editorImage.naturalWidth;
                 imageNaturalSize.height = editorImage.naturalHeight;
-                imageDisplaySize.width = editorImage.offsetWidth;
-                imageDisplaySize.height = editorImage.offsetHeight;
                 
-                // ضبط حجم الحاوية ليتناسب مع الصورة
-                imageContainer.style.width = imageDisplaySize.width + 'px';
-                imageContainer.style.height = imageDisplaySize.height + 'px';
-                
-                // إعادة تحميل العناصر النصية إذا كانت موجودة
-                if (image.elements && image.elements.length > 0) {
-                    image.elements.forEach(element => {
-                        // تحويل المواقع من الحجم الطبيعي إلى حجم العرض
-                        const displayX = (element.x / imageNaturalSize.width) * imageDisplaySize.width;
-                        const displayY = (element.y / imageNaturalSize.height) * imageDisplaySize.height;
-                        const displayFontSize = (element.fontSize / imageNaturalSize.width) * imageDisplaySize.width;
-                        
-                        addTextFieldToEditor(element.text, {
-                            ...element,
-                            x: displayX,
-                            y: displayY,
-                            fontSize: displayFontSize
+                // استخدام setTimeout لتأخير حساب أبعاد العرض حتى يتم عرض الصورة
+                setTimeout(() => {
+                    // حساب أبعاد العرض الفعلية باستخدام getBoundingClientRect
+                    const rect = editorImage.getBoundingClientRect();
+                    imageDisplaySize.width = rect.width;
+                    imageDisplaySize.height = rect.height;
+                    
+                    console.log("أبعاد الصورة الطبيعية:", imageNaturalSize);
+                    console.log("أبعاد الصورة المعروضة:", imageDisplaySize);
+                    
+                    // ضبط حجم الحاوية ليتناسب مع الصورة
+                    imageContainer.style.width = imageDisplaySize.width + 'px';
+                    imageContainer.style.height = imageDisplaySize.height + 'px';
+                    
+                    // إعادة تحميل العناصر النصية إذا كانت موجودة
+                    if (image.elements && image.elements.length > 0) {
+                        image.elements.forEach(element => {
+                            // تحويل المواقع من النسب المئوية إلى مواقع العرض
+                            const displayX = element.x * imageDisplaySize.width;
+                            const displayY = element.y * imageDisplaySize.height;
+                            
+                            // حساب حجم الخط المعروض
+                            const displayFontSize = (element.fontSize / imageNaturalSize.width) * imageDisplaySize.width;
+                            
+                            console.log("تحميل النص:", element.text, "x:", displayX, "y:", displayY);
+                            
+                            addTextFieldToEditor(element.text, {
+                                ...element,
+                                x: displayX,
+                                y: displayY,
+                                fontSize: displayFontSize
+                            });
                         });
-                    });
-                }
-                
-                // تحميل الشعار إذا كان موجوداً
-                if (image.logo) {
-                    logoImage = image.logo.url;
-                    logoSize = image.logo.size || 113;
+                    }
                     
-                    // تحويل حجم الشعار من الطبيعي إلى العرض
-                    const displayLogoSize = (logoSize / imageNaturalSize.width) * imageDisplaySize.width;
-                    const displayX = (image.logo.x || 50) / imageNaturalSize.width * imageDisplaySize.width;
-                    const displayY = (image.logo.y || 50) / imageNaturalSize.height * imageDisplaySize.height;
-                    
-                    addLogoToEditor(displayLogoSize, displayX, displayY);
-                }
+                    // تحميل الشعار إذا كان موجوداً
+                    if (image.logo) {
+                        logoImage = image.logo.url;
+                        logoSize = image.logo.size || 113;
+                        
+                        // تحويل حجم الشعار من الطبيعي إلى العرض
+                        const displayLogoSize = (logoSize / imageNaturalSize.width) * imageDisplaySize.width;
+                        const displayX = (image.logo.x || 0.1) * imageDisplaySize.width;
+                        const displayY = (image.logo.y || 0.1) * imageDisplaySize.height;
+                        
+                        console.log("تحميل الشعار:", "size:", displayLogoSize, "x:", displayX, "y:", displayY);
+                        
+                        addLogoToEditor(displayLogoSize, displayX, displayY);
+                    }
+                }, 100); // تأخير 100 مللي ثانية للتأكد من عرض الصورة
             };
             
             // في حالة فشل تحميل الصورة
@@ -1868,48 +1886,74 @@
         
         // إضافة حقل نصي إلى المحرر (الطريقة القديمة - النقر)
         function addTextField(field) {
-            const elementId = `text-${Date.now()}`;
-            
-            // المواقع الافتراضية كنسبة مئوية من حجم الصورة
-            const defaultX = 0.1;
-            const defaultY = 0.1;
-            
-            // الإعدادات الافتراضية
-            const element = {
-                id: elementId,
-                text: field,
-                type: 'text',
-                fontFamily: "'Cairo', sans-serif",
-                fontSize: 27, // حجم افتراضي 27 بكسل
-                fontWeight: '900', // سمك افتراضي ثقيل جداً
-                color: '#000000',
-                x: defaultX,
-                y: defaultY
-            };
-            
-            // إضافة إلى الصورة المحددة
-            if (selectedImage) {
-                if (!selectedImage.elements) selectedImage.elements = [];
-                selectedImage.elements.push(element);
+            // التأكد من أن الأبعاد قد تم حسابها
+            ensureImageDisplayed(() => {
+                const elementId = `text-${Date.now()}`;
                 
-                // تحديث الصورة في Firebase
-                updateImageInFirebase(selectedImage);
-            }
-            
-            // إضافة إلى المحرر
-            const displayX = element.x * imageDisplaySize.width;
-            const displayY = element.y * imageDisplaySize.height;
-            const displayFontSize = (element.fontSize / imageNaturalSize.width) * imageDisplaySize.width;
-            
-            addTextFieldToEditor(field, {
-                ...element,
-                x: displayX,
-                y: displayY,
-                fontSize: displayFontSize
+                // المواقع الافتراضية كنسبة مئوية من حجم الصورة
+                const defaultX = 0.1;
+                const defaultY = 0.1;
+                
+                // الإعدادات الافتراضية
+                const element = {
+                    id: elementId,
+                    text: field,
+                    type: 'text',
+                    fontFamily: "'Cairo', sans-serif",
+                    fontSize: 27, // حجم افتراضي 27 بكسل
+                    fontWeight: '900', // سمك افتراضي ثقيل جداً
+                    color: '#000000',
+                    x: defaultX,
+                    y: defaultY
+                };
+                
+                // إضافة إلى الصورة المحددة
+                if (selectedImage) {
+                    if (!selectedImage.elements) selectedImage.elements = [];
+                    selectedImage.elements.push(element);
+                    
+                    // تحديث الصورة في Firebase
+                    updateImageInFirebase(selectedImage);
+                }
+                
+                // تحويل المواقع من النسبة المئوية إلى مواقع العرض
+                const displayX = element.x * imageDisplaySize.width;
+                const displayY = element.y * imageDisplaySize.height;
+                const displayFontSize = (element.fontSize / imageNaturalSize.width) * imageDisplaySize.width;
+                
+                console.log("إضافة نص جديد:", field, "x:", displayX, "y:", displayY);
+                
+                addTextFieldToEditor(field, {
+                    ...element,
+                    x: displayX,
+                    y: displayY,
+                    fontSize: displayFontSize
+                });
+                
+                // تحديث أدوات التحرير لتعكس الإعدادات الافتراضية
+                updateEditorToolsToDefaults();
             });
-            
-            // تحديث أدوات التحرير لتعكس الإعدادات الافتراضية
-            updateEditorToolsToDefaults();
+        }
+        
+        // دالة للتأكد من أن الصورة معروضة قبل حساب الأبعاد
+        function ensureImageDisplayed(callback) {
+            if (imageDisplaySize.width === 0 || imageDisplaySize.height === 0) {
+                // إذا لم تكن الأبعاد معروفة بعد، انتظر قليلاً ثم حاول مرة أخرى
+                setTimeout(() => {
+                    if (editorImage.complete && editorImage.naturalWidth !== 0) {
+                        const rect = editorImage.getBoundingClientRect();
+                        imageDisplaySize.width = rect.width;
+                        imageDisplaySize.height = rect.height;
+                        imageNaturalSize.width = editorImage.naturalWidth;
+                        imageNaturalSize.height = editorImage.naturalHeight;
+                        callback();
+                    } else {
+                        ensureImageDisplayed(callback);
+                    }
+                }, 100);
+            } else {
+                callback();
+            }
         }
         
         // إضافة حقل نصي إلى واجهة المحرر
@@ -2009,20 +2053,25 @@
         }
         
         // إضافة الشعار إلى المحرر
-        function addLogoToEditor(displaySize = null, displayX = 50, displayY = 50) {
+        function addLogoToEditor(displaySize = null, displayX = null, displayY = null) {
             if (!logoImage) return;
             
             const oldLogo = document.getElementById('logo-element');
             if (oldLogo) oldLogo.remove();
             
+            // استخدام القيم المقدمة أو القيم الافتراضية
             const logoDisplaySize = displaySize || (logoSize / imageNaturalSize.width) * imageDisplaySize.width;
+            const x = displayX !== null ? displayX : 0.1 * imageDisplaySize.width;
+            const y = displayY !== null ? displayY : 0.1 * imageDisplaySize.height;
+            
+            console.log("إضافة الشعار:", "size:", logoDisplaySize, "x:", x, "y:", y);
             
             const logoElement = document.createElement('div');
             logoElement.id = 'logo-element';
             logoElement.className = 'logo-element';
             logoElement.style.position = 'absolute';
-            logoElement.style.left = `${displayX}px`;
-            logoElement.style.top = `${displayY}px`;
+            logoElement.style.left = `${x}px`;
+            logoElement.style.top = `${y}px`;
             logoElement.style.width = `${logoDisplaySize}px`;
             logoElement.style.height = `${logoDisplaySize}px`;
             logoElement.style.cursor = 'move';
@@ -2039,8 +2088,8 @@
             imageEditor.appendChild(logoElement);
             
             if (selectedImage) {
-                const xRatio = displayX / imageDisplaySize.width;
-                const yRatio = displayY / imageDisplaySize.height;
+                const xRatio = x / imageDisplaySize.width;
+                const yRatio = y / imageDisplaySize.height;
                 
                 selectedImage.logo = {
                     url: logoImage,
@@ -2247,7 +2296,7 @@
                         const y = element.y * img.height;
                         
                         // التعديل: إضافة 12 بكسل إلى الإحداثي y لتصحيح موضع النص
-                        const correctedY = y + 12;
+                        const correctedY = y + 26;
                         
                         // تصحيح الموقع: رسم النص في الموضع الصحيح مع الإزاحة
                         ctx.fillText(element.text, x, correctedY);
@@ -2671,7 +2720,7 @@
                         const y = element.y * img.height;
                         
                         // التعديل: إضافة 12 بكسل إلى الإحداثي y لتصحيح موضع النص
-                        const correctedY = y + 12;
+                        const correctedY = y + 26;
                         
                         // تصحيح الموقع: رسم النص في الموضع الصحيح مع الإزاحة
                         ctx.fillText(element.text, x, correctedY);
