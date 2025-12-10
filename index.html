@@ -5,7 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محرر المستندات المدرسية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- إضافة الخطوط العربية المتنوعة -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rakkas&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -394,6 +404,13 @@
             border-radius: 2px;
             background-color: transparent !important;
             text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            min-width: 50px;
+            min-height: 20px;
+        }
+
+        .text-element.editing {
+            outline: 2px solid var(--secondary-color);
+            background-color: rgba(52, 152, 219, 0.1) !important;
         }
 
         .text-element.selected {
@@ -709,7 +726,7 @@
                                         <i class="fas fa-building"></i> اسم المديرية
                                     </button>
                                 </div>
-                                <p class="help-text">انقر على أي حقل لإضافته إلى الصورة</p>
+                                <p class="help-text">انقر مرتين على أي نص لتعديل محتواه</p>
                             </div>
                             
                             <div class="tool-group">
@@ -730,10 +747,20 @@
                                 <div class="form-group">
                                     <label>نوع الخط:</label>
                                     <select id="fontFamily" class="font-selector">
-                                        <option value="Arial, sans-serif">Arial</option>
-                                        <option value="'Cairo', sans-serif" selected>Cairo</option>
-                                        <option value="'Times New Roman', serif">Times New Roman</option>
-                                        <option value="'Courier New', monospace">Courier New</option>
+                                        <!-- 10 خطوط عربية متنوعة مع خطوط سميكة -->
+                                        <option value="'Cairo', sans-serif" selected>قاهرة - عادي</option>
+                                        <option value="'Cairo', sans-serif" style="font-weight: 700;">قاهرة - غامق</option>
+                                        <option value="'Cairo', sans-serif" style="font-weight: 900;">قاهرة - ثقيل</option>
+                                        <option value="'Tajawal', sans-serif" style="font-weight: 700;">تجوال - غامق</option>
+                                        <option value="'Tajawal', sans-serif" style="font-weight: 900;">تجوال - ثقيل</option>
+                                        <option value="'Amiri', serif" style="font-weight: 700;">أميري - غامق</option>
+                                        <option value="'El Messiri', sans-serif" style="font-weight: 700;">المسيري - غامق</option>
+                                        <option value="'Markazi Text', serif" style="font-weight: 600;">مركزية نص - متوسط</option>
+                                        <option value="'Noto Naskh Arabic', serif" style="font-weight: 700;">نوتو نسخ عربي - غامق</option>
+                                        <option value="'Reem Kufi', sans-serif" style="font-weight: 700;">ريم كوفي - غامق</option>
+                                        <option value="'Harmattan', sans-serif" style="font-weight: 700;">حرمطان - غامق</option>
+                                        <option value="'Rakkas', cursive" style="font-weight: 400;">رَكّاس</option>
+                                        <option value="'Scheherazade New', serif" style="font-weight: 700;">شهرزاد جديد - غامق</option>
                                     </select>
                                 </div>
                                 
@@ -751,7 +778,7 @@
                                         <option value="normal">عادي</option>
                                         <option value="bold">غامق</option>
                                         <option value="bolder">أكثر غلاظة</option>
-                                        <option value="lighter">أخف</option>
+                                        <option value="900">ثقيل جداً</option>
                                     </select>
                                 </div>
                                 
@@ -825,10 +852,20 @@
                             <div class="form-group">
                                 <label>نوع الخط:</label>
                                 <select id="modalFontFamily" class="font-selector">
-                                    <option value="Arial, sans-serif">Arial</option>
-                                    <option value="'Cairo', sans-serif" selected>Cairo</option>
-                                    <option value="'Times New Roman', serif">Times New Roman</option>
-                                    <option value="'Courier New', monospace">Courier New</option>
+                                    <!-- 10 خطوط عربية متنوعة مع خطوط سميكة -->
+                                    <option value="'Cairo', sans-serif" selected>قاهرة - عادي</option>
+                                    <option value="'Cairo', sans-serif" style="font-weight: 700;">قاهرة - غامق</option>
+                                    <option value="'Cairo', sans-serif" style="font-weight: 900;">قاهرة - ثقيل</option>
+                                    <option value="'Tajawal', sans-serif" style="font-weight: 700;">تجوال - غامق</option>
+                                    <option value="'Tajawal', sans-serif" style="font-weight: 900;">تجوال - ثقيل</option>
+                                    <option value="'Amiri', serif" style="font-weight: 700;">أميري - غامق</option>
+                                    <option value="'El Messiri', sans-serif" style="font-weight: 700;">المسيري - غامق</option>
+                                    <option value="'Markazi Text', serif" style="font-weight: 600;">مركزية نص - متوسط</option>
+                                    <option value="'Noto Naskh Arabic', serif" style="font-weight: 700;">نوتو نسخ عربي - غامق</option>
+                                    <option value="'Reem Kufi', sans-serif" style="font-weight: 700;">ريم كوفي - غامق</option>
+                                    <option value="'Harmattan', sans-serif" style="font-weight: 700;">حرمطان - غامق</option>
+                                    <option value="'Rakkas', cursive" style="font-weight: 400;">رَكّاس</option>
+                                    <option value="'Scheherazade New', serif" style="font-weight: 700;">شهرزاد جديد - غامق</option>
                                 </select>
                             </div>
                             
@@ -846,7 +883,7 @@
                                     <option value="normal">عادي</option>
                                     <option value="bold">غامق</option>
                                     <option value="bolder">أكثر غلاظة</option>
-                                    <option value="lighter">أخف</option>
+                                    <option value="900">ثقيل جداً</option>
                                 </select>
                             </div>
                             
@@ -1409,13 +1446,71 @@
             textElement.style.userSelect = 'none';
             textElement.style.backgroundColor = 'transparent';
             textElement.style.textShadow = '1px 1px 2px rgba(255, 255, 255, 0.8)';
+            textElement.contentEditable = false;
             
             // إضافة مستمعي الأحداث للسحب والتحديد
             textElement.addEventListener('mousedown', startDrag);
             textElement.addEventListener('click', selectElement);
             
+            // إضافة حدث النقر المزدوج لتعديل النص
+            textElement.addEventListener('dblclick', enableTextEditing);
+            
+            // إضافة حدث عند فقدان التركيز لحفظ النص
+            textElement.addEventListener('blur', saveTextChanges);
+            
+            // إضافة حدث عند ضغط Enter لحفظ النص
+            textElement.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    textElement.blur();
+                }
+            });
+            
             imageEditor.appendChild(textElement);
             return textElement;
+        }
+        
+        // تمكين تعديل النص
+        function enableTextEditing(e) {
+            const textElement = e.currentTarget;
+            
+            // منع النقر المزدوج من التأثير على السحب
+            e.stopPropagation();
+            
+            // تمكين التحرير
+            textElement.contentEditable = true;
+            textElement.classList.add('editing');
+            
+            // تحديد النص كاملاً
+            setTimeout(() => {
+                const range = document.createRange();
+                range.selectNodeContents(textElement);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }, 0);
+            
+            // التركيز على العنصر
+            textElement.focus();
+        }
+        
+        // حفظ التغييرات في النص
+        function saveTextChanges(e) {
+            const textElement = e.currentTarget;
+            const newText = textElement.textContent.trim();
+            
+            // تعطيل التحرير
+            textElement.contentEditable = false;
+            textElement.classList.remove('editing');
+            
+            // حفظ التغييرات في البيانات
+            if (selectedImage && selectedImage.elements) {
+                const element = selectedImage.elements.find(el => el.id === textElement.id);
+                if (element) {
+                    element.text = newText;
+                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                }
+            }
         }
         
         // إضافة الشعار إلى المحرر
@@ -1774,13 +1869,72 @@
             textElement.style.userSelect = 'none';
             textElement.style.backgroundColor = 'transparent';
             textElement.style.textShadow = '1px 1px 2px rgba(255, 255, 255, 0.8)';
+            textElement.contentEditable = false;
             
             // إضافة مستمعي الأحداث للسحب والتحديد
             textElement.addEventListener('mousedown', startModalDrag);
             textElement.addEventListener('click', selectModalElement);
             
+            // إضافة حدث النقر المزدوج لتعديل النص (للمستخدمين أيضًا)
+            textElement.addEventListener('dblclick', enableModalTextEditing);
+            
+            // إضافة حدث عند فقدان التركيز لحفظ النص
+            textElement.addEventListener('blur', saveModalTextChanges);
+            
+            // إضافة حدث عند ضغط Enter لحفظ النص
+            textElement.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    textElement.blur();
+                }
+            });
+            
             modalImageEditor.appendChild(textElement);
             return textElement;
+        }
+        
+        // تمكين تعديل النص في الـ Modal
+        function enableModalTextEditing(e) {
+            const textElement = e.currentTarget;
+            
+            // منع النقر المزدوج من التأثير على السحب
+            e.stopPropagation();
+            
+            // تمكين التحرير
+            textElement.contentEditable = true;
+            textElement.classList.add('editing');
+            
+            // تحديد النص كاملاً
+            setTimeout(() => {
+                const range = document.createRange();
+                range.selectNodeContents(textElement);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }, 0);
+            
+            // التركيز على العنصر
+            textElement.focus();
+        }
+        
+        // حفظ التغييرات في النص في الـ Modal
+        function saveModalTextChanges(e) {
+            const textElement = e.currentTarget;
+            const newText = textElement.textContent.trim();
+            
+            // تعطيل التحرير
+            textElement.contentEditable = false;
+            textElement.classList.remove('editing');
+            
+            // حفظ التغييرات في البيانات
+            if (selectedImage && selectedImage.elements) {
+                const originalId = textElement.id.replace('modal-', '');
+                const element = selectedImage.elements.find(el => el.id === originalId);
+                if (element) {
+                    element.text = newText;
+                    localStorage.setItem('school_docs_images', JSON.stringify(images));
+                }
+            }
         }
         
         // بدء سحب العنصر في الـ Modal
