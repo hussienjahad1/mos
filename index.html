@@ -390,8 +390,10 @@
             position: absolute;
             cursor: move;
             user-select: none;
-            padding: 5px;
-            border-radius: 4px;
+            padding: 2px;
+            border-radius: 2px;
+            background-color: transparent !important;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
         }
 
         .text-element.selected {
@@ -402,6 +404,11 @@
             position: absolute;
             cursor: move;
             user-select: none;
+            outline: 2px dashed transparent;
+        }
+
+        .logo-element.selected {
+            outline: 2px dashed var(--secondary-color);
         }
 
         .logo-element img {
@@ -492,7 +499,7 @@
             background-color: white;
             border-radius: var(--border-radius);
             padding: 30px;
-            max-width: 500px;
+            max-width: 800px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -770,9 +777,13 @@
                         </div>
                         
                         <div class="canvas-container">
-                            <canvas id="canvas" width="800" height="600"></canvas>
-                            <div id="imageEditor" style="position: relative; display: none;">
-                                <!-- سيتم إضافة العناصر النصية والشعار هنا -->
+                            <div id="editorArea" style="position: relative; overflow: auto; height: 600px;">
+                                <div id="imageContainer" style="position: relative; display: inline-block;">
+                                    <img id="editorImage" src="" alt="" style="display: block; max-width: 100%;">
+                                    <div id="imageEditor" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                                        <!-- سيتم إضافة العناصر النصية والشعار هنا -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -806,7 +817,7 @@
                     <button class="close-modal">&times;</button>
                 </div>
                 <div id="modalMessage" class="status-message hidden"></div>
-                <div id="modalEditor" class="editor-container">
+                <div class="editor-container">
                     <div class="editor-tools">
                         <h3><i class="fas fa-edit"></i> أدوات التحرير</h3>
                         <div class="tool-group">
@@ -861,9 +872,13 @@
                     </div>
                     
                     <div class="canvas-container">
-                        <canvas id="modalCanvas" width="800" height="600"></canvas>
-                        <div id="modalImageEditor" style="position: relative;">
-                            <!-- سيتم إضافة العناصر النصية هنا -->
+                        <div id="modalEditorArea" style="position: relative; overflow: auto; height: 600px;">
+                            <div id="modalImageContainer" style="position: relative; display: inline-block;">
+                                <img id="modalEditorImage" src="" alt="" style="display: block; max-width: 100%;">
+                                <div id="modalImageEditor" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                                    <!-- سيتم إضافة العناصر النصية هنا -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -880,9 +895,11 @@
         let selectedImage = null;
         let selectedElement = null;
         let logoImage = null;
-        let logoSize = 113; // 3 سم تقريباً بالبكسل (3 * 37.8)
+        let logoSize = 113;
         let isDragging = false;
         let dragOffset = { x: 0, y: 0 };
+        let imageNaturalSize = { width: 0, height: 0 };
+        let imageDisplaySize = { width: 0, height: 0 };
         
         // حالات التطبيق
         const APP_STATE = {
@@ -913,40 +930,30 @@
         const filterButtons = document.querySelectorAll('.filter-btn');
         const imageModal = document.getElementById('imageModal');
         const closeModalBtn = document.querySelector('.close-modal');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const modalCanvas = document.getElementById('modalCanvas');
-        const modalCtx = modalCanvas.getContext('2d');
         const imageEditor = document.getElementById('imageEditor');
         const modalImageEditor = document.getElementById('modalImageEditor');
+        const editorImage = document.getElementById('editorImage');
+        const modalEditorImage = document.getElementById('modalEditorImage');
+        const imageContainer = document.getElementById('imageContainer');
+        const modalImageContainer = document.getElementById('modalImageContainer');
         
         // تهيئة التطبيق
         function initApp() {
-            // عرض حالة التطبيق الافتراضية (واجهة المستخدم)
             showUserView();
-            
-            // تحميل الصور من التخزين المحلي
             loadImages();
-            
-            // إضافة مستمعي الأحداث
             setupEventListeners();
-            
-            // عرض الصور في المعرض
             displayImagesInGallery();
         }
         
         // إعداد مستمعي الأحداث
         function setupEventListeners() {
-            // أحداث تسجيل الدخول والخروج
             adminLoginBtn.addEventListener('click', showLoginSection);
             userViewBtn.addEventListener('click', showUserView);
             loginBtn.addEventListener('click', handleLogin);
             logoutBtn.addEventListener('click', handleLogout);
             
-            // أحداث رفع الصور
             imageUpload.addEventListener('change', handleImageUpload);
             
-            // أحداث اختيار الفئة
             categoryCards.forEach(card => {
                 card.addEventListener('click', () => {
                     categoryCards.forEach(c => c.classList.remove('selected'));
@@ -955,33 +962,27 @@
                 });
             });
             
-            // أحداث التنقل في لوحة التحكم
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     const section = link.dataset.section;
                     
-                    // تحديد العنصر النشط
                     navLinks.forEach(l => l.classList.remove('active'));
                     link.classList.add('active');
                     
-                    // عرض القسم المحدد
                     sectionContents.forEach(content => content.classList.add('hidden'));
                     document.getElementById(`${section}Section`).classList.remove('hidden');
                     
-                    // إذا كان القسم هو المعرض، قم بتحديثه
                     if (section === 'gallery') {
                         displayImagesInGallery();
                     }
                     
-                    // إذا كان القسم هو المحرر، قم بإعداد المحرر
                     if (section === 'editor' && selectedImage) {
                         setupImageEditor(selectedImage);
                     }
                 });
             });
             
-            // أحداث معرض المستخدم
             filterButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     filterButtons.forEach(b => b.classList.remove('active'));
@@ -990,29 +991,24 @@
                 });
             });
             
-            // أحداث المحرر
             setupEditorEvents();
             
-            // أحداث الـ Modal
             closeModalBtn.addEventListener('click', () => {
                 imageModal.classList.add('hidden');
             });
             
-            // إغلاق الـ Modal عند النقر خارج المحتوى
             imageModal.addEventListener('click', (e) => {
                 if (e.target === imageModal) {
                     imageModal.classList.add('hidden');
                 }
             });
             
-            // اختيار صورة من المعرض
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('edit-image') || e.target.parentElement.classList.contains('edit-image')) {
                     const imageId = e.target.closest('.image-card').dataset.id;
                     const image = images.find(img => img.id == imageId);
                     if (image) {
                         if (appState === APP_STATE.ADMIN) {
-                            // في حالة المدير، استخدم المحرر الرئيسي
                             selectedImage = image;
                             navLinks.forEach(l => l.classList.remove('active'));
                             document.querySelector('[data-section="editor"]').classList.add('active');
@@ -1020,13 +1016,11 @@
                             document.getElementById('editorSection').classList.remove('hidden');
                             setupImageEditor(image);
                         } else {
-                            // في حالة المستخدم، استخدم الـ Modal
                             openImageModal(image);
                         }
                     }
                 }
                 
-                // حذف صورة من المعرض (للمدير فقط)
                 if (e.target.classList.contains('delete-image') || e.target.parentElement.classList.contains('delete-image')) {
                     if (appState !== APP_STATE.ADMIN) return;
                     
@@ -1040,7 +1034,6 @@
         
         // إعداد أحداث المحرر
         function setupEditorEvents() {
-            // إضافة حقول نصية
             document.querySelectorAll('.add-text').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const field = btn.dataset.field;
@@ -1048,17 +1041,14 @@
                 });
             });
             
-            // رفع الشعار
             document.getElementById('logoUpload').addEventListener('change', handleLogoUpload);
             
-            // تغيير حجم الشعار
             document.getElementById('logoSize').addEventListener('input', (e) => {
                 logoSize = parseInt(e.target.value);
                 document.getElementById('logoSizeValue').textContent = `${Math.round(logoSize / 37.8 * 10) / 10} سم`;
                 updateLogoSize();
             });
             
-            // أدوات تحرير النص
             document.getElementById('fontFamily').addEventListener('change', updateTextStyle);
             document.getElementById('fontSize').addEventListener('input', (e) => {
                 document.getElementById('fontSizeValue').textContent = `${e.target.value}px`;
@@ -1076,13 +1066,10 @@
                 updateTextStyle();
             });
             
-            // حذف العنصر المحدد
             document.getElementById('removeSelected').addEventListener('click', removeSelectedElement);
             
-            // تحميل الصورة
             document.getElementById('downloadImage').addEventListener('click', downloadEditedImage);
             
-            // أحداث الـ Modal للمستخدم
             document.getElementById('modalFontFamily').addEventListener('change', updateModalTextStyle);
             document.getElementById('modalFontSize').addEventListener('input', (e) => {
                 document.getElementById('modalFontSizeValue').textContent = `${e.target.value}px`;
@@ -1120,13 +1107,11 @@
             adminPanel.classList.remove('hidden');
             userView.classList.add('hidden');
             
-            // تحديد قسم رفع الصور كافتراضي
             navLinks.forEach(l => l.classList.remove('active'));
             document.querySelector('[data-section="upload"]').classList.add('active');
             sectionContents.forEach(content => content.classList.add('hidden'));
             document.getElementById('uploadSection').classList.remove('hidden');
             
-            // تحديد فئة افتراضية
             categoryCards.forEach(c => c.classList.remove('selected'));
             document.querySelector('.category-card').classList.add('selected');
         }
@@ -1164,7 +1149,6 @@
             const files = e.target.files;
             if (!files.length) return;
             
-            // تأكيد اختيار الفئة
             if (!selectedCategory) {
                 showMessage(uploadStatus, 'الرجاء اختيار فئة للصورة أولاً!', 'error');
                 return;
@@ -1172,12 +1156,9 @@
             
             showMessage(uploadStatus, 'جاري رفع الصور...', 'success');
             
-            // في بيئة حقيقية، هنا نرفع الصور إلى Imgur API
-            // لكن في هذا المثال، سنستخدم التخزين المحلي
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 
-                // تحويل الصورة إلى base64
                 const reader = new FileReader();
                 
                 reader.onload = function(event) {
@@ -1187,25 +1168,19 @@
                     const newImage = {
                         id: Date.now() + i,
                         name: file.name,
-                        url: imageData, // في التطبيق الحقيقي، سيكون هذا رابط Imgur
+                        url: imageData,
                         category: selectedCategory,
                         uploadedAt: new Date().toISOString(),
-                        elements: [], // العناصر النصية المضافة
-                        logo: null // الشعار
+                        elements: [],
+                        logo: null
                     };
                     
-                    // إضافة الصورة إلى المصفوفة
                     images.push(newImage);
-                    
-                    // حفظ في التخزين المحلي
                     localStorage.setItem('school_docs_images', JSON.stringify(images));
                     
-                    // عرض رسالة النجاح
                     if (i === files.length - 1) {
                         showMessage(uploadStatus, `تم رفع ${files.length} صورة بنجاح!`, 'success');
                         displayImagesInGallery();
-                        
-                        // إعادة تعيين حقل الرفع
                         imageUpload.value = '';
                     }
                 };
@@ -1239,7 +1214,6 @@
         
         // عرض الصور في المعرض
         function displayImagesInGallery(filter = 'all') {
-            // للمعرض الخاص بالمدير
             if (adminGallery) {
                 adminGallery.innerHTML = '';
                 
@@ -1249,7 +1223,6 @@
                 });
             }
             
-            // للمعرض الخاص بالمستخدم
             if (userGallery) {
                 filterImagesByCategory(filter);
             }
@@ -1331,30 +1304,36 @@
         // إعداد محرر الصور
         function setupImageEditor(image) {
             selectedImage = image;
+            imageEditor.innerHTML = '';
             
-            // مسح الكانفاس
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // تحميل الصورة إلى المحرر
+            editorImage.src = image.url;
             
-            // تحميل الصورة إلى الكانفاس
-            const img = new Image();
-            img.onload = function() {
-                // حساب الأبعاد المناسبة للكانفاس
-                const ratio = Math.min(canvas.width / img.width, canvas.height / img.height);
-                const width = img.width * ratio;
-                const height = img.height * ratio;
-                const x = (canvas.width - width) / 2;
-                const y = (canvas.height - height) / 2;
+            editorImage.onload = function() {
+                // حفظ الأبعاد الأصلية والعرضية للصورة
+                imageNaturalSize.width = editorImage.naturalWidth;
+                imageNaturalSize.height = editorImage.naturalHeight;
+                imageDisplaySize.width = editorImage.offsetWidth;
+                imageDisplaySize.height = editorImage.offsetHeight;
                 
-                // رسم الصورة
-                ctx.drawImage(img, x, y, width, height);
+                // ضبط حجم الحاوية ليتناسب مع الصورة
+                imageContainer.style.width = imageDisplaySize.width + 'px';
+                imageContainer.style.height = imageDisplaySize.height + 'px';
                 
-                // حفظ معلومات الصورة
-                selectedImage.canvasInfo = { x, y, width, height, ratio };
-                
-                // تحميل العناصر النصية إذا كانت موجودة
+                // إعادة تحميل العناصر النصية إذا كانت موجودة
                 if (image.elements && image.elements.length > 0) {
                     image.elements.forEach(element => {
-                        addTextFieldToEditor(element.text, element);
+                        // تحويل المواقع من الحجم الطبيعي إلى حجم العرض
+                        const displayX = (element.x / imageNaturalSize.width) * imageDisplaySize.width;
+                        const displayY = (element.y / imageNaturalSize.height) * imageDisplaySize.height;
+                        const displayFontSize = (element.fontSize / imageNaturalSize.width) * imageDisplaySize.width;
+                        
+                        addTextFieldToEditor(element.text, {
+                            ...element,
+                            x: displayX,
+                            y: displayY,
+                            fontSize: displayFontSize
+                        });
                     });
                 }
                 
@@ -1362,19 +1341,25 @@
                 if (image.logo) {
                     logoImage = image.logo.url;
                     logoSize = image.logo.size || 113;
-                    addLogoToEditor();
+                    
+                    // تحويل حجم الشعار من الطبيعي إلى العرض
+                    const displayLogoSize = (logoSize / imageNaturalSize.width) * imageDisplaySize.width;
+                    const displayX = (image.logo.x || 50) / imageNaturalSize.width * imageDisplaySize.width;
+                    const displayY = (image.logo.y || 50) / imageNaturalSize.height * imageDisplaySize.height;
+                    
+                    addLogoToEditor(displayLogoSize, displayX, displayY);
                 }
             };
-            
-            img.src = image.url;
-            
-            // إظهار محرر الصور
-            imageEditor.style.display = 'block';
         }
         
         // إضافة حقل نصي إلى المحرر
         function addTextField(field) {
             const elementId = `text-${Date.now()}`;
+            
+            // المواقع الافتراضية كنسبة مئوية من حجم الصورة
+            const defaultX = 0.1; // 10% من عرض الصورة
+            const defaultY = 0.1; // 10% من ارتفاع الصورة
+            
             const element = {
                 id: elementId,
                 text: field,
@@ -1383,8 +1368,8 @@
                 fontSize: 24,
                 fontWeight: 'normal',
                 color: '#000000',
-                x: 100,
-                y: 100
+                x: defaultX, // تخزين كنسبة مئوية
+                y: defaultY  // تخزين كنسبة مئوية
             };
             
             // إضافة إلى الصورة المحددة
@@ -1395,7 +1380,16 @@
             }
             
             // إضافة إلى المحرر
-            addTextFieldToEditor(field, element);
+            const displayX = element.x * imageDisplaySize.width;
+            const displayY = element.y * imageDisplaySize.height;
+            const displayFontSize = (element.fontSize / imageNaturalSize.width) * imageDisplaySize.width;
+            
+            addTextFieldToEditor(field, {
+                ...element,
+                x: displayX,
+                y: displayY,
+                fontSize: displayFontSize
+            });
         }
         
         // إضافة حقل نصي إلى واجهة المحرر
@@ -1413,36 +1407,39 @@
             textElement.style.color = element.color;
             textElement.style.cursor = 'move';
             textElement.style.userSelect = 'none';
-            textElement.style.padding = '5px';
-            textElement.style.borderRadius = '4px';
-            textElement.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            textElement.style.backgroundColor = 'transparent';
+            textElement.style.textShadow = '1px 1px 2px rgba(255, 255, 255, 0.8)';
             
             // إضافة مستمعي الأحداث للسحب والتحديد
             textElement.addEventListener('mousedown', startDrag);
             textElement.addEventListener('click', selectElement);
             
             imageEditor.appendChild(textElement);
+            return textElement;
         }
         
         // إضافة الشعار إلى المحرر
-        function addLogoToEditor() {
+        function addLogoToEditor(displaySize = null, displayX = 50, displayY = 50) {
             if (!logoImage) return;
             
             // إزالة الشعار القديم إذا كان موجوداً
             const oldLogo = document.getElementById('logo-element');
             if (oldLogo) oldLogo.remove();
             
+            const logoDisplaySize = displaySize || (logoSize / imageNaturalSize.width) * imageDisplaySize.width;
+            
             // إنشاء عنصر الشعار
             const logoElement = document.createElement('div');
             logoElement.id = 'logo-element';
             logoElement.className = 'logo-element';
             logoElement.style.position = 'absolute';
-            logoElement.style.left = '50px';
-            logoElement.style.top = '50px';
-            logoElement.style.width = `${logoSize}px`;
-            logoElement.style.height = `${logoSize}px`;
+            logoElement.style.left = `${displayX}px`;
+            logoElement.style.top = `${displayY}px`;
+            logoElement.style.width = `${logoDisplaySize}px`;
+            logoElement.style.height = `${logoDisplaySize}px`;
             logoElement.style.cursor = 'move';
             logoElement.style.userSelect = 'none';
+            logoElement.style.zIndex = '100';
             
             const img = document.createElement('img');
             img.src = logoImage;
@@ -1454,22 +1451,30 @@
             
             imageEditor.appendChild(logoElement);
             
-            // حفظ في بيانات الصورة
+            // حفظ في بيانات الصورة كنسبة مئوية
             if (selectedImage) {
+                const xRatio = displayX / imageDisplaySize.width;
+                const yRatio = displayY / imageDisplaySize.height;
+                
                 selectedImage.logo = {
                     url: logoImage,
-                    size: logoSize
+                    size: logoSize,
+                    x: xRatio,
+                    y: yRatio
                 };
                 localStorage.setItem('school_docs_images', JSON.stringify(images));
             }
+            
+            return logoElement;
         }
         
         // تحديث حجم الشعار
         function updateLogoSize() {
             const logoElement = document.getElementById('logo-element');
             if (logoElement) {
-                logoElement.style.width = `${logoSize}px`;
-                logoElement.style.height = `${logoSize}px`;
+                const newDisplaySize = (logoSize / imageNaturalSize.width) * imageDisplaySize.width;
+                logoElement.style.width = `${newDisplaySize}px`;
+                logoElement.style.height = `${newDisplaySize}px`;
                 
                 // تحديث في بيانات الصورة
                 if (selectedImage && selectedImage.logo) {
@@ -1481,12 +1486,17 @@
         
         // بدء سحب العنصر
         function startDrag(e) {
-            selectedElement = e.target;
+            selectedElement = e.currentTarget;
             selectedElement.classList.add('selected');
             
             isDragging = true;
-            dragOffset.x = e.clientX - selectedElement.offsetLeft;
-            dragOffset.y = e.clientY - selectedElement.offsetTop;
+            
+            // حساب الإزاحة بدقة
+            const rect = selectedElement.getBoundingClientRect();
+            const containerRect = imageContainer.getBoundingClientRect();
+            
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
             
             document.addEventListener('mousemove', dragElement);
             document.addEventListener('mouseup', stopDrag);
@@ -1498,13 +1508,21 @@
         function dragElement(e) {
             if (!isDragging || !selectedElement) return;
             
-            const x = e.clientX - dragOffset.x;
-            const y = e.clientY - dragOffset.y;
+            // حساب الموضع الجديد بالنسبة للحاوية
+            let x = e.clientX - dragOffset.x - imageContainer.getBoundingClientRect().left;
+            let y = e.clientY - dragOffset.y - imageContainer.getBoundingClientRect().top;
+            
+            // تحديد الحدود
+            const maxX = imageContainer.offsetWidth - selectedElement.offsetWidth;
+            const maxY = imageContainer.offsetHeight - selectedElement.offsetHeight;
+            
+            x = Math.max(0, Math.min(x, maxX));
+            y = Math.max(0, Math.min(y, maxY));
             
             selectedElement.style.left = `${x}px`;
             selectedElement.style.top = `${y}px`;
             
-            // تحديث الموضع في بيانات الصورة
+            // تحديث الموضع في البيانات (كنسبة مئوية)
             updateElementPosition(selectedElement.id, x, y);
         }
         
@@ -1519,12 +1537,16 @@
         function updateElementPosition(elementId, x, y) {
             if (!selectedImage) return;
             
+            // تحويل المواقع إلى نسبة مئوية
+            const xRatio = x / imageDisplaySize.width;
+            const yRatio = y / imageDisplaySize.height;
+            
             // البحث عن العنصر في مصفوفة العناصر النصية
             if (selectedImage.elements) {
                 const element = selectedImage.elements.find(el => el.id === elementId);
                 if (element) {
-                    element.x = x;
-                    element.y = y;
+                    element.x = xRatio;
+                    element.y = yRatio;
                     localStorage.setItem('school_docs_images', JSON.stringify(images));
                     return;
                 }
@@ -1532,8 +1554,8 @@
             
             // إذا كان الشعار
             if (elementId === 'logo-element' && selectedImage.logo) {
-                selectedImage.logo.x = x;
-                selectedImage.logo.y = y;
+                selectedImage.logo.x = xRatio;
+                selectedImage.logo.y = yRatio;
                 localStorage.setItem('school_docs_images', JSON.stringify(images));
             }
         }
@@ -1546,7 +1568,7 @@
             });
             
             // تحديد العنصر الحالي
-            selectedElement = e.target.closest('.text-element, .logo-element');
+            selectedElement = e.currentTarget;
             if (selectedElement) {
                 selectedElement.classList.add('selected');
                 
@@ -1557,8 +1579,13 @@
                         const element = selectedImage.elements.find(el => el.id === selectedElement.id);
                         if (element) {
                             document.getElementById('fontFamily').value = element.fontFamily;
-                            document.getElementById('fontSize').value = element.fontSize;
-                            document.getElementById('fontSizeValue').textContent = `${element.fontSize}px`;
+                            
+                            // تحويل حجم الخط من الطبيعي إلى العرض للعرض في الأدوات
+                            const displayFontSize = (element.fontSize / imageNaturalSize.width) * imageDisplaySize.width;
+                            const naturalFontSize = element.fontSize;
+                            
+                            document.getElementById('fontSize').value = naturalFontSize;
+                            document.getElementById('fontSizeValue').textContent = `${naturalFontSize}px`;
                             document.getElementById('fontWeight').value = element.fontWeight;
                             document.getElementById('textColor').value = element.color;
                             document.getElementById('colorHex').value = element.color;
@@ -1567,8 +1594,6 @@
                     }
                 }
             }
-            
-            e.stopPropagation();
         }
         
         // تحديث نمط النص المحدد
@@ -1576,13 +1601,16 @@
             if (!selectedElement || !selectedElement.classList.contains('text-element')) return;
             
             const fontFamily = document.getElementById('fontFamily').value;
-            const fontSize = document.getElementById('fontSize').value;
+            const fontSize = parseInt(document.getElementById('fontSize').value);
             const fontWeight = document.getElementById('fontWeight').value;
             const color = document.getElementById('textColor').value;
             
             // تطبيق الأنماط على العنصر
             selectedElement.style.fontFamily = fontFamily;
-            selectedElement.style.fontSize = `${fontSize}px`;
+            
+            // تحويل حجم الخط من الطبيعي إلى العرض للعرض
+            const displayFontSize = (fontSize / imageNaturalSize.width) * imageDisplaySize.width;
+            selectedElement.style.fontSize = `${displayFontSize}px`;
             selectedElement.style.fontWeight = fontWeight;
             selectedElement.style.color = color;
             
@@ -1591,7 +1619,7 @@
                 const element = selectedImage.elements.find(el => el.id === selectedElement.id);
                 if (element) {
                     element.fontFamily = fontFamily;
-                    element.fontSize = parseInt(fontSize);
+                    element.fontSize = fontSize;
                     element.fontWeight = fontWeight;
                     element.color = color;
                     localStorage.setItem('school_docs_images', JSON.stringify(images));
@@ -1630,26 +1658,30 @@
                 return;
             }
             
-            // إنشاء كانفاس جديد مع جميع العناصر
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
+            // إنشاء كانفاس جديد بحجم الصورة الأصلية
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
             
-            // تعيين أبعاد الكانفاس
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
-            
-            // رسم الصورة الأصلية
+            // تحميل الصورة الأصلية
             const img = new Image();
             img.onload = function() {
-                const canvasInfo = selectedImage.canvasInfo;
-                tempCtx.drawImage(img, canvasInfo.x, canvasInfo.y, canvasInfo.width, canvasInfo.height);
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                // رسم الصورة الأصلية
+                ctx.drawImage(img, 0, 0);
                 
                 // رسم العناصر النصية
                 if (selectedImage.elements) {
                     selectedImage.elements.forEach(element => {
-                        tempCtx.font = `${element.fontWeight} ${element.fontSize}px ${element.fontFamily}`;
-                        tempCtx.fillStyle = element.color;
-                        tempCtx.fillText(element.text, element.x, element.y + parseInt(element.fontSize));
+                        ctx.font = `${element.fontWeight} ${element.fontSize}px ${element.fontFamily}`;
+                        ctx.fillStyle = element.color;
+                        
+                        // تحويل المواقع من النسبة المئوية إلى المواقع الفعلية
+                        const x = element.x * img.width;
+                        const y = element.y * img.height;
+                        
+                        ctx.fillText(element.text, x, y);
                     });
                 }
                 
@@ -1657,16 +1689,17 @@
                 if (selectedImage.logo && selectedImage.logo.url) {
                     const logoImg = new Image();
                     logoImg.onload = function() {
-                        const logoX = selectedImage.logo.x || 50;
-                        const logoY = selectedImage.logo.y || 50;
-                        const logoSize = selectedImage.logo.size || 113;
+                        // تحويل المواقع من النسبة المئوية إلى المواقع الفعلية
+                        const x = (selectedImage.logo.x || 0) * img.width;
+                        const y = (selectedImage.logo.y || 0) * img.height;
+                        const size = selectedImage.logo.size || 113;
                         
-                        tempCtx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+                        ctx.drawImage(logoImg, x, y, size, size);
                         
                         // تحميل الصورة
                         const link = document.createElement('a');
                         link.download = `محرر-مدرسي-${selectedImage.name}`;
-                        link.href = tempCanvas.toDataURL('image/png');
+                        link.href = canvas.toDataURL('image/png');
                         link.click();
                     };
                     
@@ -1675,7 +1708,7 @@
                     // تحميل الصورة بدون شعار
                     const link = document.createElement('a');
                     link.download = `محرر-مدرسي-${selectedImage.name}`;
-                    link.href = tempCanvas.toDataURL('image/png');
+                    link.href = canvas.toDataURL('image/png');
                     link.click();
                 }
             };
@@ -1686,36 +1719,39 @@
         // فتح صورة في الـ Modal للمستخدم
         function openImageModal(image) {
             selectedImage = image;
+            modalImageEditor.innerHTML = '';
             
-            // مسح الكانفاس
-            modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+            // تحميل الصورة إلى المحرر
+            modalEditorImage.src = image.url;
             
-            // تحميل الصورة إلى الكانفاس
-            const img = new Image();
-            img.onload = function() {
-                // حساب الأبعاد المناسبة للكانفاس
-                const ratio = Math.min(modalCanvas.width / img.width, modalCanvas.height / img.height);
-                const width = img.width * ratio;
-                const height = img.height * ratio;
-                const x = (modalCanvas.width - width) / 2;
-                const y = (modalCanvas.height - height) / 2;
+            modalEditorImage.onload = function() {
+                // حفظ الأبعاد للصورة في الـ Modal
+                const modalNaturalWidth = modalEditorImage.naturalWidth;
+                const modalNaturalHeight = modalEditorImage.naturalHeight;
+                const modalDisplayWidth = modalEditorImage.offsetWidth;
+                const modalDisplayHeight = modalEditorImage.offsetHeight;
                 
-                // رسم الصورة
-                modalCtx.drawImage(img, x, y, width, height);
-                
-                // حفظ معلومات الصورة
-                selectedImage.modalCanvasInfo = { x, y, width, height, ratio };
+                // ضبط حجم الحاوية ليتناسب مع الصورة
+                modalImageContainer.style.width = modalDisplayWidth + 'px';
+                modalImageContainer.style.height = modalDisplayHeight + 'px';
                 
                 // تحميل العناصر النصية إذا كانت موجودة
-                modalImageEditor.innerHTML = '';
                 if (image.elements && image.elements.length > 0) {
                     image.elements.forEach(element => {
-                        addTextFieldToModalEditor(element.text, element);
+                        // تحويل المواقع من النسبة المئوية إلى حجم العرض
+                        const displayX = element.x * modalDisplayWidth;
+                        const displayY = element.y * modalDisplayHeight;
+                        const displayFontSize = (element.fontSize / modalNaturalWidth) * modalDisplayWidth;
+                        
+                        addTextFieldToModalEditor(element.text, {
+                            ...element,
+                            x: displayX,
+                            y: displayY,
+                            fontSize: displayFontSize
+                        });
                     });
                 }
             };
-            
-            img.src = image.url;
             
             // إظهار الـ Modal
             imageModal.classList.remove('hidden');
@@ -1736,25 +1772,29 @@
             textElement.style.color = element.color;
             textElement.style.cursor = 'move';
             textElement.style.userSelect = 'none';
-            textElement.style.padding = '5px';
-            textElement.style.borderRadius = '4px';
-            textElement.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            textElement.style.backgroundColor = 'transparent';
+            textElement.style.textShadow = '1px 1px 2px rgba(255, 255, 255, 0.8)';
             
             // إضافة مستمعي الأحداث للسحب والتحديد
             textElement.addEventListener('mousedown', startModalDrag);
             textElement.addEventListener('click', selectModalElement);
             
             modalImageEditor.appendChild(textElement);
+            return textElement;
         }
         
         // بدء سحب العنصر في الـ Modal
         function startModalDrag(e) {
-            selectedElement = e.target;
+            selectedElement = e.currentTarget;
             selectedElement.classList.add('selected');
             
             isDragging = true;
-            dragOffset.x = e.clientX - selectedElement.offsetLeft;
-            dragOffset.y = e.clientY - selectedElement.offsetTop;
+            
+            const rect = selectedElement.getBoundingClientRect();
+            const containerRect = modalImageContainer.getBoundingClientRect();
+            
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
             
             document.addEventListener('mousemove', dragModalElement);
             document.addEventListener('mouseup', stopModalDrag);
@@ -1766,13 +1806,18 @@
         function dragModalElement(e) {
             if (!isDragging || !selectedElement) return;
             
-            const x = e.clientX - dragOffset.x;
-            const y = e.clientY - dragOffset.y;
+            let x = e.clientX - dragOffset.x - modalImageContainer.getBoundingClientRect().left;
+            let y = e.clientY - dragOffset.y - modalImageContainer.getBoundingClientRect().top;
+            
+            const maxX = modalImageContainer.offsetWidth - selectedElement.offsetWidth;
+            const maxY = modalImageContainer.offsetHeight - selectedElement.offsetHeight;
+            
+            x = Math.max(0, Math.min(x, maxX));
+            y = Math.max(0, Math.min(y, maxY));
             
             selectedElement.style.left = `${x}px`;
             selectedElement.style.top = `${y}px`;
             
-            // تحديث الموضع في بيانات الصورة
             updateModalElementPosition(selectedElement.id, x, y);
         }
         
@@ -1787,35 +1832,34 @@
         function updateModalElementPosition(elementId, x, y) {
             if (!selectedImage || !selectedImage.elements) return;
             
-            // استخراج المعرف الأصلي من المعرف المعدل
+            const modalDisplayWidth = modalEditorImage.offsetWidth;
+            const modalDisplayHeight = modalEditorImage.offsetHeight;
+            
+            const xRatio = x / modalDisplayWidth;
+            const yRatio = y / modalDisplayHeight;
+            
             const originalId = elementId.replace('modal-', '');
             
-            // البحث عن العنصر في مصفوفة العناصر النصية
             const element = selectedImage.elements.find(el => el.id === originalId);
             if (element) {
-                element.x = x;
-                element.y = y;
+                element.x = xRatio;
+                element.y = yRatio;
                 localStorage.setItem('school_docs_images', JSON.stringify(images));
             }
         }
         
         // تحديد العنصر في الـ Modal
         function selectModalElement(e) {
-            // إزالة التحديد من جميع العناصر
             document.querySelectorAll('#modalImageEditor .text-element').forEach(el => {
                 el.classList.remove('selected');
             });
             
-            // تحديد العنصر الحالي
-            selectedElement = e.target.closest('.text-element');
+            selectedElement = e.currentTarget;
             if (selectedElement) {
                 selectedElement.classList.add('selected');
                 
-                // تحديث أدوات التحرير بناءً على نوع العنصر
-                // استخراج المعرف الأصلي من المعرف المعدل
                 const originalId = selectedElement.id.replace('modal-', '');
                 
-                // البحث عن العنصر في البيانات
                 if (selectedImage && selectedImage.elements) {
                     const element = selectedImage.elements.find(el => el.id === originalId);
                     if (element) {
@@ -1829,8 +1873,6 @@
                     }
                 }
             }
-            
-            e.stopPropagation();
         }
         
         // تحديث نمط النص المحدد في الـ Modal
@@ -1838,25 +1880,27 @@
             if (!selectedElement || !selectedElement.classList.contains('text-element')) return;
             
             const fontFamily = document.getElementById('modalFontFamily').value;
-            const fontSize = document.getElementById('modalFontSize').value;
+            const fontSize = parseInt(document.getElementById('modalFontSize').value);
             const fontWeight = document.getElementById('modalFontWeight').value;
             const color = document.getElementById('modalTextColor').value;
             
-            // تطبيق الأنماط على العنصر
             selectedElement.style.fontFamily = fontFamily;
-            selectedElement.style.fontSize = `${fontSize}px`;
+            
+            const modalNaturalWidth = modalEditorImage.naturalWidth;
+            const modalDisplayWidth = modalEditorImage.offsetWidth;
+            const displayFontSize = (fontSize / modalNaturalWidth) * modalDisplayWidth;
+            
+            selectedElement.style.fontSize = `${displayFontSize}px`;
             selectedElement.style.fontWeight = fontWeight;
             selectedElement.style.color = color;
             
-            // تحديث البيانات
             if (selectedImage && selectedImage.elements) {
-                // استخراج المعرف الأصلي من المعرف المعدل
                 const originalId = selectedElement.id.replace('modal-', '');
                 
                 const element = selectedImage.elements.find(el => el.id === originalId);
                 if (element) {
                     element.fontFamily = fontFamily;
-                    element.fontSize = parseInt(fontSize);
+                    element.fontSize = fontSize;
                     element.fontWeight = fontWeight;
                     element.color = color;
                     localStorage.setItem('school_docs_images', JSON.stringify(images));
@@ -1868,13 +1912,10 @@
         function removeModalSelectedElement() {
             if (!selectedElement) return;
             
-            // استخراج المعرف الأصلي من المعرف المعدل
             const originalId = selectedElement.id.replace('modal-', '');
             
-            // حذف من الواجهة
             selectedElement.remove();
             
-            // حذف من البيانات
             if (selectedImage && selectedImage.elements) {
                 selectedImage.elements = selectedImage.elements.filter(el => el.id !== originalId);
                 localStorage.setItem('school_docs_images', JSON.stringify(images));
@@ -1887,33 +1928,31 @@
         function downloadModalEditedImage() {
             if (!selectedImage) return;
             
-            // إنشاء كانفاس جديد مع جميع العناصر
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
             
-            // تعيين أبعاد الكانفاس
-            tempCanvas.width = modalCanvas.width;
-            tempCanvas.height = modalCanvas.height;
-            
-            // رسم الصورة الأصلية
             const img = new Image();
             img.onload = function() {
-                const canvasInfo = selectedImage.modalCanvasInfo;
-                tempCtx.drawImage(img, canvasInfo.x, canvasInfo.y, canvasInfo.width, canvasInfo.height);
+                canvas.width = img.width;
+                canvas.height = img.height;
                 
-                // رسم العناصر النصية
+                ctx.drawImage(img, 0, 0);
+                
                 if (selectedImage.elements) {
                     selectedImage.elements.forEach(element => {
-                        tempCtx.font = `${element.fontWeight} ${element.fontSize}px ${element.fontFamily}`;
-                        tempCtx.fillStyle = element.color;
-                        tempCtx.fillText(element.text, element.x, element.y + parseInt(element.fontSize));
+                        ctx.font = `${element.fontWeight} ${element.fontSize}px ${element.fontFamily}`;
+                        ctx.fillStyle = element.color;
+                        
+                        const x = element.x * img.width;
+                        const y = element.y * img.height;
+                        
+                        ctx.fillText(element.text, x, y);
                     });
                 }
                 
-                // تحميل الصورة
                 const link = document.createElement('a');
                 link.download = `محرر-مدرسي-${selectedImage.name}`;
-                link.href = tempCanvas.toDataURL('image/png');
+                link.href = canvas.toDataURL('image/png');
                 link.click();
             };
             
@@ -1933,7 +1972,6 @@
             element.className = `status-message ${type}`;
             element.classList.remove('hidden');
             
-            // إخفاء الرسالة بعد 5 ثوانٍ
             setTimeout(() => {
                 element.classList.add('hidden');
             }, 5000);
